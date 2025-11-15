@@ -160,42 +160,12 @@
         .notification-bell.has-new .notification-dot {
             display: block;
         }
-        
-        /* Màn hình Loading */
-        #loading-view {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        .spinner {
-            width: 56px;
-            height: 56px;
-            border: 6px solid #4b5563; /* gray-600 */
-            border-bottom-color: #3b82f6; /* blue-500 */
-            border-radius: 50%;
-            display: inline-block;
-            box-sizing: border-box;
-            animation: rotation 1s linear infinite;
-        }
-        @keyframes rotation {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 font-inter antialiased">
 
-    <!-- 0. Màn hình Loading (Mặc định) -->
-    <div id="loading-view">
-        <div class="spinner"></div>
-        <p id="loading-text" class="text-gray-400">Đang kết nối đến máy chủ...</p>
-    </div>
-    
-    <!-- 1. Trang Đăng Nhập (Ẩn ban đầu) -->
-    <div id="login-view" class="min-h-screen flex items-center justify-center p-4 hidden">
+    <!-- 1. Trang Đăng Nhập (Hiển thị mặc định) -->
+    <div id="login-view" class="min-h-screen flex items-center justify-center p-4">
         <div class="bg-gray-800 p-8 md:p-12 rounded-2xl shadow-2xl w-full max-w-md border border-gray-700">
             <h1 class="text-5xl font-extrabold text-center mb-4 text-white">
                 <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500">Kin</span>
@@ -661,1954 +631,1644 @@
     </div>
 
     <!-- 7. Script chính của ứng dụng -->
-    <!-- Import Firebase -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { 
-            getAuth, 
-            signInAnonymously, 
-            signInWithCustomToken, 
-            onAuthStateChanged 
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { 
-            getFirestore, 
-            doc, 
-            getDoc, 
-            setDoc, 
-            deleteDoc, 
-            onSnapshot, 
-            collection, 
-            query, 
-            addDoc,
-            writeBatch,
-            getDocs,
-            Timestamp,
-            serverTimestamp
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
 
-    // --- DOM Elements ---
-    const views = {
-        loading: document.getElementById('loading-view'),
-        login: document.getElementById('login-view'),
-        player: document.getElementById('player-view'),
-        admin: document.getElementById('admin-view'),
-    };
-    const loadingText = document.getElementById('loading-text');
-    
-    // General Modal
-    const modal = document.getElementById('modal');
-    const modalTitle = document.getElementById('modal-title');
-    const modalBody = document.getElementById('modal-body');
-    const modalCloseBtn = document.getElementById('modal-close-btn');
-    const modalOkBtn = document.getElementById('modal-ok-btn');
-    const modalCancelBtn = document.getElementById('modal-cancel-btn');
-    
-    // Notification Modal (Bell)
-    const notificationModal = document.getElementById('notification-modal');
-    const notificationModalBody = document.getElementById('notification-modal-body');
-    const notificationModalCloseBtn = document.getElementById('notification-modal-close-btn');
-    const notificationModalOkBtn = document.getElementById('notification-modal-ok-btn');
-    const notificationBell = document.getElementById('notification-bell');
+        // --- DOM Elements ---
+        const views = {
+            // KHÔNG CÓ loading
+            login: document.getElementById('login-view'),
+            player: document.getElementById('player-view'),
+            admin: document.getElementById('admin-view'),
+        };
+        
+        // General Modal
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+        const modalOkBtn = document.getElementById('modal-ok-btn');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+        
+        // Notification Modal (Bell)
+        const notificationModal = document.getElementById('notification-modal');
+        const notificationModalBody = document.getElementById('notification-modal-body');
+        const notificationModalCloseBtn = document.getElementById('notification-modal-close-btn');
+        const notificationModalOkBtn = document.getElementById('notification-modal-ok-btn');
+        const notificationBell = document.getElementById('notification-bell');
 
-    // Toast
-    const toast = document.getElementById('toast');
-    const toastMessage = document.getElementById('toast-message');
-    
-    // Login
-    const loginForm = document.getElementById('login-form');
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const rememberMeInput = document.getElementById('remember-me');
+        // Toast
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        
+        // Login
+        const loginForm = document.getElementById('login-form');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const rememberMeInput = document.getElementById('remember-me');
 
-    // Player Header
-    const playerUsername = document.getElementById('player-username');
-    const playerDisplayname = document.getElementById('player-displayname');
-    const playerHeaderIcon = document.getElementById('player-header-icon');
-    const playerBalance = document.getElementById('player-balance');
-    const logoutBtnPlayer = document.getElementById('logout-btn-player');
-    
-    // Player Nav
-    const playerNav = document.getElementById('player-nav');
-    const playerTabs = {
-        friends: document.getElementById('friends-tab'),
-        challenges: document.getElementById('challenges-tab'),
-        shop: document.getElementById('shop-tab'),
-        profile: document.getElementById('profile-tab'),
-    };
-    
-    // Player: Challenges
-    const challengeListPlayer = document.getElementById('challenge-list-player');
+        // Player Header
+        const playerUsername = document.getElementById('player-username');
+        const playerDisplayname = document.getElementById('player-displayname');
+        const playerHeaderIcon = document.getElementById('player-header-icon');
+        const playerBalance = document.getElementById('player-balance');
+        const logoutBtnPlayer = document.getElementById('logout-btn-player');
+        
+        // Player Nav
+        const playerNav = document.getElementById('player-nav');
+        const playerTabs = {
+            friends: document.getElementById('friends-tab'),
+            challenges: document.getElementById('challenges-tab'),
+            shop: document.getElementById('shop-tab'),
+            profile: document.getElementById('profile-tab'),
+        };
+        
+        // Player: Challenges
+        const challengeListPlayer = document.getElementById('challenge-list-player');
 
-    // Player: Shop
-    const shopListPlayer = document.getElementById('shop-list-player');
-    const viewMyGiftsBtn = document.getElementById('view-my-gifts-btn');
-    const viewGiftsPointer = document.getElementById('view-gifts-pointer');
+        // Player: Shop
+        const shopListPlayer = document.getElementById('shop-list-player');
+        const viewMyGiftsBtn = document.getElementById('view-my-gifts-btn');
+        const viewGiftsPointer = document.getElementById('view-gifts-pointer');
 
-    // Player: Profile
-    const profileForm = document.getElementById('profile-form');
-    const profileIconDisplay = document.getElementById('profile-icon-display');
-    const profileDisplaynameInput = document.getElementById('profile-displayname');
-    const profileIconInput = document.getElementById('profile-icon');
-    const profilePasswordInput = document.getElementById('profile-password');
-    const profileEmojiList = document.getElementById('profile-emoji-list');
-    const cooldownName = document.getElementById('cooldown-name');
-    const cooldownIcon = document.getElementById('cooldown-icon');
-    const cooldownPassword = document.getElementById('cooldown-password');
-    
-    // Player: Friends (Chuỗi Chung)
-    const friendListView = document.getElementById('friend-list-view');
-    const mutualStreakDetailView = document.getElementById('mutual-streak-detail-view');
-    const addFriendForm = document.getElementById('add-friend-form');
-    const addFriendUsernameInput = document.getElementById('add-friend-username');
-    const friendListContainer = document.getElementById('friend-list-container');
-    const friendRequestsList = document.getElementById('friend-requests-list');
-    const backToFriendListBtn = document.getElementById('back-to-friend-list');
-    
-    // Player: Mutual Streak Detail
-    const mutualUserIcon = document.getElementById('mutual-user-icon');
-    const mutualFriendIcon = document.getElementById('mutual-friend-icon');
-    const mutualFriendName = document.getElementById('mutual-friend-name');
-    const mutualStreakIcon = document.getElementById('mutual-streak-icon');
-    const mutualStreakCount = document.getElementById('mutual-streak-count');
-    const mutualStreakMilestone = document.getElementById('mutual-streak-milestone');
-    const repMutualStreakBtn = document.getElementById('rep-mutual-streak-btn');
-    const mutualStreakMessage = document.getElementById('mutual-streak-message');
+        // Player: Profile
+        const profileForm = document.getElementById('profile-form');
+        const profileIconDisplay = document.getElementById('profile-icon-display');
+        const profileDisplaynameInput = document.getElementById('profile-displayname');
+        const profileIconInput = document.getElementById('profile-icon');
+        const profilePasswordInput = document.getElementById('profile-password');
+        const profileEmojiList = document.getElementById('profile-emoji-list');
+        const cooldownName = document.getElementById('cooldown-name');
+        const cooldownIcon = document.getElementById('cooldown-icon');
+        const cooldownPassword = document.getElementById('cooldown-password');
+        
+        // Player: Friends (Chuỗi Chung)
+        const friendListView = document.getElementById('friend-list-view');
+        const mutualStreakDetailView = document.getElementById('mutual-streak-detail-view');
+        const addFriendForm = document.getElementById('add-friend-form');
+        const addFriendUsernameInput = document.getElementById('add-friend-username');
+        const friendListContainer = document.getElementById('friend-list-container');
+        const friendRequestsList = document.getElementById('friend-requests-list');
+        const backToFriendListBtn = document.getElementById('back-to-friend-list');
+        
+        // Player: Mutual Streak Detail
+        const mutualUserIcon = document.getElementById('mutual-user-icon');
+        const mutualFriendIcon = document.getElementById('mutual-friend-icon');
+        const mutualFriendName = document.getElementById('mutual-friend-name');
+        const mutualStreakIcon = document.getElementById('mutual-streak-icon');
+        const mutualStreakCount = document.getElementById('mutual-streak-count');
+        const mutualStreakMilestone = document.getElementById('mutual-streak-milestone');
+        const repMutualStreakBtn = document.getElementById('rep-mutual-streak-btn');
+        const mutualStreakMessage = document.getElementById('mutual-streak-message');
 
-    // Admin
-    const logoutBtnAdmin = document.getElementById('logout-btn-admin');
-    const adminNav = document.getElementById('admin-nav');
-    const adminTabs = {
-        userMgmt: document.getElementById('userMgmt-tab'),
-        challengeMgmt: document.getElementById('challengeMgmt-tab'),
-        shopMgmt: document.getElementById('shopMgmt-tab'),
-        notifyMgmt: document.getElementById('notifyMgmt-tab'),
-        activityLog: document.getElementById('activityLog-tab'),
-    };
-    
-    // Admin: User Mgmt
-    const userForm = document.getElementById('user-form');
-    const userUsernameInput = document.getElementById('user-username');
-    const userDisplaynameInput = document.getElementById('user-displayname');
-    const userIconInput = document.getElementById('user-icon');
-    const adminEmojiList = document.getElementById('admin-emoji-list');
-    const userPasswordInput = document.getElementById('user-password');
-    const userBalanceInput = document.getElementById('user-balance');
-    const clearUserFormBtn = document.getElementById('clear-user-form-btn');
-    const userListTbody = document.getElementById('user-list-tbody');
-    
-    // Admin: Challenge Mgmt
-    const challengeForm = document.getElementById('challenge-form');
-    const challengeIdInput = document.getElementById('challenge-id');
-    const challengeQuestionInput = document.getElementById('challenge-question');
-    const challengeOp1Input = document.getElementById('challenge-op1');
-    const challengeOp2Input = document.getElementById('challenge-op2');
-    const challengeOp3Input = document.getElementById('challenge-op3');
-    const challengeOp4Input = document.getElementById('challenge-op4');
-    const challengeAnswerInput = document.getElementById('challenge-answer');
-    const challengeRewardInput = document.getElementById('challenge-reward');
-    const challengeExplanationTextInput = document.getElementById('challenge-explanation-text');
-    const challengeExplanationImgInput = document.getElementById('challenge-explanation-img');
-    const clearChallengeFormBtn = document.getElementById('clear-challenge-form-btn');
-    const challengeListTbody = document.getElementById('challenge-list-tbody');
+        // Admin
+        const logoutBtnAdmin = document.getElementById('logout-btn-admin');
+        const adminNav = document.getElementById('admin-nav');
+        const adminTabs = {
+            userMgmt: document.getElementById('userMgmt-tab'),
+            challengeMgmt: document.getElementById('challengeMgmt-tab'),
+            shopMgmt: document.getElementById('shopMgmt-tab'),
+            notifyMgmt: document.getElementById('notifyMgmt-tab'),
+            activityLog: document.getElementById('activityLog-tab'),
+        };
+        
+        // Admin: User Mgmt
+        const userForm = document.getElementById('user-form');
+        const userUsernameInput = document.getElementById('user-username');
+        const userDisplaynameInput = document.getElementById('user-displayname');
+        const userIconInput = document.getElementById('user-icon');
+        const adminEmojiList = document.getElementById('admin-emoji-list');
+        const userPasswordInput = document.getElementById('user-password');
+        const userBalanceInput = document.getElementById('user-balance');
+        const clearUserFormBtn = document.getElementById('clear-user-form-btn');
+        const userListTbody = document.getElementById('user-list-tbody');
+        
+        // Admin: Challenge Mgmt
+        const challengeForm = document.getElementById('challenge-form');
+        const challengeIdInput = document.getElementById('challenge-id');
+        const challengeQuestionInput = document.getElementById('challenge-question');
+        const challengeOp1Input = document.getElementById('challenge-op1');
+        const challengeOp2Input = document.getElementById('challenge-op2');
+        const challengeOp3Input = document.getElementById('challenge-op3');
+        const challengeOp4Input = document.getElementById('challenge-op4');
+        const challengeAnswerInput = document.getElementById('challenge-answer');
+        const challengeRewardInput = document.getElementById('challenge-reward');
+        const challengeExplanationTextInput = document.getElementById('challenge-explanation-text');
+        const challengeExplanationImgInput = document.getElementById('challenge-explanation-img');
+        const clearChallengeFormBtn = document.getElementById('clear-challenge-form-btn');
+        const challengeListTbody = document.getElementById('challenge-list-tbody');
 
-    // Admin: Shop Mgmt
-    const shopForm = document.getElementById('shop-form');
-    const shopItemIdInput = document.getElementById('shop-item-id');
-    const shopItemNameInput = document.getElementById('shop-item-name');
-    const shopItemPriceInput = document.getElementById('shop-item-price');
-    const shopItemSaleInput = document.getElementById('shop-item-sale');
-    const clearShopFormBtn = document.getElementById('clear-shop-form-btn');
-    const shopListTbody = document.getElementById('shop-list-tbody');
-    
-    // Admin: Notify Mgmt
-    const notificationForm = document.getElementById('notification-form');
-    const notificationMessageInput = document.getElementById('notification-message');
+        // Admin: Shop Mgmt
+        const shopForm = document.getElementById('shop-form');
+        const shopItemIdInput = document.getElementById('shop-item-id');
+        const shopItemNameInput = document.getElementById('shop-item-name');
+        const shopItemPriceInput = document.getElementById('shop-item-price');
+        const shopItemSaleInput = document.getElementById('shop-item-sale');
+        const clearShopFormBtn = document.getElementById('clear-shop-form-btn');
+        const shopListTbody = document.getElementById('shop-list-tbody');
+        
+        // Admin: Notify Mgmt
+        const notificationForm = document.getElementById('notification-form');
+        const notificationMessageInput = document.getElementById('notification-message');
 
-    // Admin: Activity Log
-    const activityLogList = document.getElementById('activity-log-list');
-    const clearActivityLogBtn = document.getElementById('clear-activity-log-btn');
-    const clearPurchaseLogBtn = document.getElementById('clear-purchase-log-btn');
-    const clearUserNotificationsBtn = document.getElementById('clear-user-notifications-btn');
-    
-    // --- Firebase ---
-    let app, auth, db;
-    let appId = 'default-app-id'; // Sẽ được override
-    let usersCollectionPath, challengesCollectionPath, shopCollectionPath, activityLogCollectionPath;
+        // Admin: Activity Log
+        const activityLogList = document.getElementById('activity-log-list');
+        const clearActivityLogBtn = document.getElementById('clear-activity-log-btn');
+        const clearPurchaseLogBtn = document.getElementById('clear-purchase-log-btn');
+        const clearUserNotificationsBtn = document.getElementById('clear-user-notifications-btn');
 
-    // --- State ---
-    let state = {
-        currentUser: null,
-        users: {},
-        challenges: [],
-        shopItems: [],
-        activityLog: [],
-        editingChallengeId: null,
-        editingShopItemId: null,
-        currentFriendUsername: null, // Dùng cho trang chi tiết chuỗi chung
-        modalOkCallback: null, // Callback cho nút OK của modal
-        modalCancelCallback: null // Callback cho nút Cancel của modal
-    };
-    
-    // Danh sách emoji để chọn
-    const EMOJI_LIST = ['😊', '😂', '🔥', '🚀', '🌟', '❤️', '🎉', '😎', '👑', '💎', '💪', '🎯'];
+        // --- State ---
+        let state = {
+            currentUser: null,
+            users: {},
+            challenges: [],
+            shopItems: [],
+            activityLog: [],
+            editingChallengeId: null,
+            editingShopItemId: null,
+            currentFriendUsername: null, // Dùng cho trang chi tiết chuỗi chung
+            modalOkCallback: null, // Callback cho nút OK của modal
+            modalCancelCallback: null // Callback cho nút Cancel của modal
+        };
+        
+        // Danh sách emoji để chọn
+        const EMOJI_LIST = ['😊', '😂', '🔥', '🚀', '🌟', '❤️', '🎉', '😎', '👑', '💎', '💪', '🎯'];
 
-    // --- Database (localStorage - Chỉ dùng cho "Nhớ Mật Khẩu") ---
-    const localDb = {
-        getRememberedUser: () => {
-            const data = localStorage.getItem('kin_rememberedUser');
-            return data ? JSON.parse(data) : null;
-        },
-        saveRememberedUser: (user) => {
-            localStorage.setItem('kin_rememberedUser', JSON.stringify(user));
-        },
-        clearRememberedUser: () => localStorage.removeItem('kin_rememberedUser'),
-    };
-    
-    // --- Firebase Database Functions ---
-    
-    // Hàm này sẽ được gọi khi dữ liệu thay đổi trên máy chủ
-    const onUsersSnapshot = (querySnapshot) => {
-        const users = {};
-        querySnapshot.forEach((doc) => {
-            users[doc.id] = doc.data();
-        });
-        state.users = users;
-        // Cập nhật lại nếu đang đăng nhập
-        if (state.currentUser) {
-            const updatedUser = state.users[state.currentUser.username];
-            if (updatedUser) {
-                state.currentUser = updatedUser;
-                // Render lại các thành phần có thể đã thay đổi
-                renderPlayerHeader(updatedUser);
-                // Nếu đang ở tab bạn bè, render lại
-                if (playerTabs.friends.classList.contains('hidden') === false) {
-                    if (friendListView.classList.contains('hidden') === false) {
-                        renderFriends(updatedUser);
-                    } else if (state.currentFriendUsername) {
-                        renderMutualStreakDetail(updatedUser, state.currentFriendUsername);
-                    }
+        // --- Database (localStorage) ---
+        const db = {
+            // Hàm trợ giúp để lấy dữ liệu
+            _get: (key, defaultValue) => {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : defaultValue;
+            },
+            // Hàm trợ giúp để lưu dữ liệu
+            _save: (key, value) => {
+                localStorage.setItem(key, JSON.stringify(value));
+            },
+            
+            getUsers: () => db._get('kin_users', {}),
+            saveUsers: (users) => db._save('kin_users', users),
+            
+            getChallenges: () => db._get('kin_challenges', []),
+            saveChallenges: (challenges) => db._save('kin_challenges', challenges),
+            
+            getShopItems: () => db._get('kin_shopItems', []),
+            saveShopItems: (items) => db._save('kin_shopItems', items),
+            
+            getActivityLog: () => db._get('kin_activityLog', []),
+            saveActivityLog: (log) => db._save('kin_activityLog', log),
+            
+            getRememberedUser: () => db._get('kin_rememberedUser', null),
+            saveRememberedUser: (user) => db._save('kin_rememberedUser', user),
+            clearRememberedUser: () => localStorage.removeItem('kin_rememberedUser'),
+        };
+
+        // --- Helper Functions ---
+
+        // Hiển thị một view và ẩn các view khác
+        const showView = (viewName) => {
+            Object.keys(views).forEach(key => {
+                if (key === viewName) {
+                    views[key].classList.remove('hidden');
+                } else {
+                    views[key].classList.add('hidden');
                 }
-            } else {
-                // Người dùng bị xóa, tự động đăng xuất
-                handleLogout();
-                showToast('Tài khoản của bạn đã bị xóa bởi Admin.', true);
-            }
-        }
-        // Nếu đang ở trang admin, render lại
-        if (views.admin.classList.contains('hidden') === false && adminTabs.userMgmt.classList.contains('hidden') === false) {
-            renderUserList();
-        }
-    };
-    
-    const onChallengesSnapshot = (querySnapshot) => {
-        const challenges = [];
-        querySnapshot.forEach((doc) => {
-            challenges.push(doc.data());
-        });
-        state.challenges = challenges;
-        if (state.currentUser && playerTabs.challenges.classList.contains('hidden') === false) {
-            renderChallengesPlayer(state.currentUser);
-        }
-        if (views.admin.classList.contains('hidden') === false && adminTabs.challengeMgmt.classList.contains('hidden') === false) {
-            renderChallengeListAdmin();
-        }
-    };
-    
-    const onShopSnapshot = (querySnapshot) => {
-        const shopItems = [];
-        querySnapshot.forEach((doc) => {
-            shopItems.push(doc.data());
-        });
-        state.shopItems = shopItems;
-        if (state.currentUser && playerTabs.shop.classList.contains('hidden') === false) {
-            renderShopPlayer(state.currentUser);
-        }
-        if (views.admin.classList.contains('hidden') === false && adminTabs.shopMgmt.classList.contains('hidden') === false) {
-            renderShopListAdmin();
-        }
-    };
-    
-    const onActivityLogSnapshot = (querySnapshot) => {
-        const log = [];
-        querySnapshot.forEach((doc) => {
-            log.push(doc.data());
-        });
-        // Sắp xếp theo timestamp (mới nhất trước)
-        log.sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis());
-        state.activityLog = log;
-        if (views.admin.classList.contains('hidden') === false && adminTabs.activityLog.classList.contains('hidden') === false) {
-            renderActivityLog();
-        }
-    };
-
-    // Hàm tải và lắng nghe tất cả dữ liệu
-    const loadAllDataFromFirestore = () => {
-        try {
-            // Định nghĩa đường dẫn
-            usersCollectionPath = `artifacts/${appId}/public/data/kin_users`;
-            challengesCollectionPath = `artifacts/${appId}/public/data/kin_challenges`;
-            shopCollectionPath = `artifacts/${appId}/public/data/kin_shopItems`;
-            activityLogCollectionPath = `artifacts/${appId}/public/data/kin_activityLog`;
-            
-            // Lắng nghe
-            onSnapshot(collection(db, usersCollectionPath), onUsersSnapshot);
-            onSnapshot(collection(db, challengesCollectionPath), onChallengesSnapshot);
-            onSnapshot(collection(db, shopCollectionPath), onShopSnapshot);
-            
-            // Query cho log (chỉ lấy 100 cái mới nhất, sắp xếp theo server)
-            const logQuery = query(collection(db, activityLogCollectionPath));
-            onSnapshot(logQuery, onActivityLogSnapshot);
-            
-            loadingText.textContent = 'Đã tải dữ liệu, sẵn sàng!';
-            
-            // Ẩn loading và hiện login
-            setTimeout(() => {
-                showView('login');
-                // Tự động điền "Nhớ Mật Khẩu" (nếu có)
-                handleLogout();
-            }, 500);
-
-        } catch (error) {
-            console.error("Lỗi khi tải dữ liệu:", error);
-            loadingText.textContent = `Lỗi: ${error.message}. Vui lòng tải lại.`;
-            loadingText.classList.add('text-red-500');
-        }
-    };
-
-    // --- Helper Functions ---
-
-    // Hiển thị một view và ẩn các view khác
-    const showView = (viewName) => {
-        Object.keys(views).forEach(key => {
-            if (key === viewName) {
-                views[key].classList.remove('hidden');
-            } else {
-                views[key].classList.add('hidden');
-            }
-        });
-        if (viewName === 'login') {
-            window.scrollTo(0, 0);
-        }
-    };
-
-    // Hiển thị Toast (pop-up nhỏ)
-    let toastTimer;
-    const showToast = (message, isError = false) => {
-        clearTimeout(toastTimer);
-        toastMessage.textContent = message;
-        toast.className = `fixed bottom-5 right-5 md:bottom-10 md:right-10 z-[100] text-white py-3 px-6 rounded-lg shadow-lg pop-up max-w-sm ${isError ? 'bg-red-500' : 'bg-green-500'}`;
-        toast.classList.remove('hidden');
-        
-        toastTimer = setTimeout(() => {
-            toast.classList.add('hidden');
-        }, 3000);
-    };
-    
-    // Hiển thị Modal
-    const showModal = (title, body, okText = 'OK', showCancel = false, cancelText = 'Hủy') => {
-        modalTitle.textContent = title;
-        modalBody.innerHTML = body; // Dùng innerHTML để render ảnh
-        modalOkBtn.textContent = okText;
-        
-        if (showCancel) {
-            modalCancelBtn.textContent = cancelText;
-            modalCancelBtn.classList.remove('hidden');
-        } else {
-            modalCancelBtn.classList.add('hidden');
-        }
-        
-        modal.classList.remove('hidden');
-        
-        // Trả về một promise để xử lý bất đồng bộ
-        return new Promise((resolve) => {
-            state.modalOkCallback = () => resolve(true);
-            state.modalCancelCallback = () => resolve(false);
-        });
-    };
-
-    // Ẩn Modal
-    const hideModal = () => {
-        modal.classList.add('hidden');
-        // Xóa callback để tránh lỗi
-        state.modalOkCallback = null;
-        state.modalCancelCallback = null;
-    };
-    
-    // Xử lý sự kiện đóng Modal
-    modalCloseBtn.onclick = () => {
-        if (state.modalCancelCallback) state.modalCancelCallback();
-        hideModal();
-    };
-    modalOkBtn.onclick = () => {
-        if (state.modalOkCallback) state.modalOkCallback();
-        hideModal();
-    };
-    modalCancelBtn.onclick = () => {
-        if (state.modalCancelCallback) state.modalCancelCallback();
-        hideModal();
-    };
-
-    // Hiển thị Modal Chuông Thông Báo
-    const showNotificationModal = async (user) => {
-        notificationModalBody.innerHTML = ''; // Xóa nội dung cũ
-        if (!user.notifications || user.notifications.length === 0) {
-            notificationModalBody.innerHTML = '<p class="text-gray-400">Bạn không có thông báo nào.</p>';
-        } else {
-            // Sắp xếp, mới nhất ở trên
-            user.notifications.sort((a, b) => b.timestamp - a.timestamp).forEach(notif => {
-                const date = new Date(notif.timestamp).toLocaleString('vi-VN');
-                notificationModalBody.innerHTML += `
-                    <div class="p-4 bg-gray-700 rounded-lg">
-                        <p class="text-white">${notif.message}</p>
-                        <p class="text-xs text-gray-400 mt-1">${date}</p>
-                    </div>
-                `;
             });
-        }
-        notificationModal.classList.remove('hidden');
+            window.scrollTo(0, 0);
+        };
+
+        // Hiển thị Toast (pop-up nhỏ)
+        let toastTimer;
+        const showToast = (message, isError = false) => {
+            clearTimeout(toastTimer);
+            toastMessage.textContent = message;
+            toast.className = `fixed bottom-5 right-5 md:bottom-10 md:right-10 z-[100] text-white py-3 px-6 rounded-lg shadow-lg pop-up max-w-sm ${isError ? 'bg-red-500' : 'bg-green-500'}`;
+            toast.classList.remove('hidden');
+            
+            toastTimer = setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        };
         
-        // Đánh dấu đã đọc
-        if (user.hasNewNotification) {
+        // Hiển thị Modal
+        const showModal = (title, body, okText = 'OK', showCancel = false, cancelText = 'Hủy') => {
+            modalTitle.textContent = title;
+            modalBody.innerHTML = body; // Dùng innerHTML để render ảnh
+            modalOkBtn.textContent = okText;
+            
+            if (showCancel) {
+                modalCancelBtn.textContent = cancelText;
+                modalCancelBtn.classList.remove('hidden');
+            } else {
+                modalCancelBtn.classList.add('hidden');
+            }
+            
+            modal.classList.remove('hidden');
+            
+            // Trả về một promise để xử lý bất đồng bộ
+            return new Promise((resolve) => {
+                state.modalOkCallback = () => resolve(true);
+                state.modalCancelCallback = () => resolve(false);
+            });
+        };
+
+        // Ẩn Modal
+        const hideModal = () => {
+            modal.classList.add('hidden');
+            // Xóa callback để tránh lỗi
+            state.modalOkCallback = null;
+            state.modalCancelCallback = null;
+        };
+        
+        // Xử lý sự kiện đóng Modal
+        modalCloseBtn.onclick = () => {
+            if (state.modalCancelCallback) state.modalCancelCallback();
+            hideModal();
+        };
+        modalOkBtn.onclick = () => {
+            if (state.modalOkCallback) state.modalOkCallback();
+            hideModal();
+        };
+        modalCancelBtn.onclick = () => {
+            if (state.modalCancelCallback) state.modalCancelCallback();
+            hideModal();
+        };
+
+        // Hiển thị Modal Chuông Thông Báo
+        const showNotificationModal = (user) => {
+            notificationModalBody.innerHTML = ''; // Xóa nội dung cũ
+            if (!user.notifications || user.notifications.length === 0) {
+                notificationModalBody.innerHTML = '<p class="text-gray-400">Bạn không có thông báo nào.</p>';
+            } else {
+                // Sắp xếp, mới nhất ở trên
+                user.notifications.sort((a, b) => b.timestamp - a.timestamp).forEach(notif => {
+                    const date = new Date(notif.timestamp).toLocaleString('vi-VN');
+                    notificationModalBody.innerHTML += `
+                        <div class="p-4 bg-gray-700 rounded-lg">
+                            <p class="text-white">${notif.message}</p>
+                            <p class="text-xs text-gray-400 mt-1">${date}</p>
+                        </div>
+                    `;
+                });
+            }
+            notificationModal.classList.remove('hidden');
+            
+            // Đánh dấu đã đọc
             user.hasNewNotification = false;
             notificationBell.classList.remove('has-new');
-            // Cập nhật lên server
-            try {
-                await setDoc(doc(db, usersCollectionPath, user.username), { hasNewNotification: false }, { merge: true });
-            } catch (e) { console.error("Lỗi đánh dấu đã đọc:", e); }
-        }
-    };
-    
-    // Ẩn Modal Chuông Thông Báo
-    const hideNotificationModal = () => {
-        notificationModal.classList.add('hidden');
-    };
-    notificationBell.onclick = () => showNotificationModal(state.currentUser);
-    notificationModalCloseBtn.onclick = hideNotificationModal;
-    notificationModalOkBtn.onclick = hideNotificationModal;
-
-    // Thêm vào Activity Log (và lưu)
-    const addActivityLog = async (message, type, user) => {
-        const logEntry = {
-            timestamp: serverTimestamp(), // Dùng timestamp của server
-            message,
-            type, // 'challenge', 'purchase'
-            user: user.username
+            db.saveUsers(state.users);
         };
-        try {
-            await addDoc(collection(db, activityLogCollectionPath), logEntry);
-        } catch (e) {
-            console.error("Lỗi ghi log:", e);
-        }
-    };
+        
+        // Ẩn Modal Chuông Thông Báo
+        const hideNotificationModal = () => {
+            notificationModal.classList.add('hidden');
+        };
+        notificationBell.onclick = () => showNotificationModal(state.currentUser);
+        notificationModalCloseBtn.onclick = hideNotificationModal;
+        notificationModalOkBtn.onclick = hideNotificationModal;
 
-    // Tính toán mốc chuỗi và icon
-    const getStreakMilestone = (count) => {
-        if (count === 0) return { icon: '🌱', milestone: 'Mốc: 0' };
-        if (count >= 1 && count <= 10) return { icon: '🚀', milestone: `Mốc: 1-10 (Ngày ${count})` };
-        if (count >= 11 && count <= 20) return { icon: '🔥', milestone: `Mốc: 11-20 (Ngày ${count})` };
-        if (count >= 21 && count <= 50) return { icon: '💎', milestone: `Mốc: 21-50 (Ngày ${count})` };
-        if (count >= 51 && count <= 100) return { icon: '👑', milestone: `Mốc: 51-100 (Ngày ${count})` };
-        return { icon: '🌌', milestone: `Mốc: >100 (Ngày ${count})` };
-    };
-    
-    // Hàm render bộ chọn Emoji
-    const renderEmojiPicker = (container, inputElement) => {
-        container.innerHTML = '';
-        EMOJI_LIST.forEach(emoji => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'emoji-btn';
-            btn.textContent = emoji;
-            btn.onclick = () => {
-                inputElement.value = emoji;
+        // Thêm vào Activity Log (và lưu)
+        const addActivityLog = (message, type, user) => {
+            const logEntry = {
+                id: Date.now(),
+                timestamp: Date.now(),
+                message,
+                type, // 'challenge', 'purchase'
+                user: user.username
             };
-            container.appendChild(btn);
-        });
-    };
-    
-    // Hàm render header (để cập nhật real-time)
-    const renderPlayerHeader = (user) => {
-        playerUsername.textContent = user.username;
-        playerDisplayname.textContent = user.displayName || user.username;
-        playerHeaderIcon.textContent = user.icon || '👤';
-        playerBalance.textContent = user.balance;
-        
-        // Cập nhật chuông thông báo
-        if (user.hasNewNotification) {
-            notificationBell.classList.add('has-new');
-        } else {
-            notificationBell.classList.remove('has-new');
-        }
-    };
-
-    // --- Core Logic Functions ---
-
-    // Gửi Yêu Cầu Kết Bạn
-    const handleAddFriendSubmit = async (e) => {
-        e.preventDefault();
-        const friendUsername = addFriendUsernameInput.value.trim();
-        const user = state.currentUser;
-
-        if (!friendUsername) return;
-        if (friendUsername === user.username) {
-            showToast('Bạn không thể tự kết bạn với mình.', true);
-            return;
-        }
-        
-        // Đọc dữ liệu MỘT LẦN từ state
-        const friendUser = state.users[friendUsername];
-        if (!friendUser) {
-            showToast('Không tìm thấy người dùng này.', true);
-            return;
-        }
-
-        // Kiểm tra đã là bạn hoặc đã gửi yêu cầu
-        if (user.friends && user.friends[friendUsername]) {
-            showToast('Bạn đã là bạn bè với người này.', true);
-            return;
-        }
-        if (friendUser.friendRequests && friendUser.friendRequests.includes(user.username)) {
-            showToast('Bạn đã gửi yêu cầu cho người này rồi.', true);
-            return;
-        }
-
-        // Gửi yêu cầu (cập nhật tài liệu của người bạn)
-        const friendRef = doc(db, usersCollectionPath, friendUsername);
-        try {
-            const friendData = state.users[friendUsername];
-            const updatedRequests = [...friendData.friendRequests, user.username];
-            await setDoc(friendRef, { friendRequests: updatedRequests }, { merge: true });
+            state.activityLog.unshift(logEntry); // Thêm vào đầu mảng
+            if (state.activityLog.length > 100) {
+                state.activityLog.pop(); // Giới hạn 100 log
+            }
+            db.saveActivityLog(state.activityLog);
             
-            showToast(`Đã gửi yêu cầu kết bạn đến @${friendUsername}.`);
-            addFriendUsernameInput.value = '';
-        } catch (error) {
-            console.error("Lỗi gửi yêu cầu:", error);
-            showToast('Lỗi khi gửi yêu cầu. Vui lòng thử lại.', true);
-        }
-    };
+            // Render lại log nếu đang ở trang admin
+            if (views.admin.classList.contains('hidden') === false) {
+                renderActivityLog();
+            }
+        };
 
-    // Xử lý Chấp Nhận / Từ Chối / Xem
-    const handleFriendListClick = async (e) => {
-        const user = state.currentUser;
-        const now = Timestamp.now(); // Dùng Timestamp của Firebase
+        // Tính toán mốc chuỗi và icon
+        const getStreakMilestone = (count) => {
+            if (count === 0) return { icon: '🌱', milestone: 'Mốc: 0' };
+            if (count >= 1 && count <= 10) return { icon: '🚀', milestone: `Mốc: 1-10 (Ngày ${count})` };
+            if (count >= 11 && count <= 20) return { icon: '🔥', milestone: `Mốc: 11-20 (Ngày ${count})` };
+            if (count >= 21 && count <= 50) return { icon: '💎', milestone: `Mốc: 21-50 (Ngày ${count})` };
+            if (count >= 51 && count <= 100) return { icon: '👑', milestone: `Mốc: 51-100 (Ngày ${count})` };
+            return { icon: '🌌', milestone: `Mốc: >100 (Ngày ${count})` };
+        };
+        
+        // Hàm render bộ chọn Emoji
+        const renderEmojiPicker = (container, inputElement) => {
+            container.innerHTML = '';
+            EMOJI_LIST.forEach(emoji => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'emoji-btn';
+                btn.textContent = emoji;
+                btn.onclick = () => {
+                    inputElement.value = emoji;
+                };
+                container.appendChild(btn);
+            });
+        };
 
-        // 1. Chấp nhận yêu cầu
-        const acceptBtn = e.target.closest('.accept-friend-btn');
-        if (acceptBtn) {
-            const friendUsername = acceptBtn.dataset.username;
-            const friendData = state.users[friendUsername];
+        // --- Core Logic Functions ---
+
+        // (FIX-ADDFRIEND) Tách hàm xử lý submit form
+        const handleAddFriendSubmit = (e) => {
+            e.preventDefault();
+            const friendUsername = addFriendUsernameInput.value.trim();
+            const user = state.currentUser;
+            const users = state.users;
+
+            if (!friendUsername) return;
+            if (friendUsername === user.username) {
+                showToast('Bạn không thể tự kết bạn với mình.', true);
+                return;
+            }
             
-            if (!friendData) {
-                showToast('Lỗi: Không tìm thấy người dùng này (có thể đã bị xóa).', true);
-                // Xóa yêu cầu hỏng
-                const userRef = doc(db, usersCollectionPath, user.username);
-                const updatedRequests = user.friendRequests.filter(u => u !== friendUsername);
-                await setDoc(userRef, { friendRequests: updatedRequests }, { merge: true });
+            const friendUser = users[friendUsername];
+            if (!friendUser) {
+                showToast('Không tìm thấy người dùng này.', true);
                 return;
             }
 
-            // Xóa yêu cầu khỏi danh sách của mình
-            const updatedRequests = user.friendRequests.filter(u => u !== friendUsername);
+            // Kiểm tra đã là bạn hoặc đã gửi yêu cầu
+            if (user.friends[friendUsername]) {
+                showToast('Bạn đã là bạn bè với người này.', true);
+                return;
+            }
+            if (friendUser.friendRequests.includes(user.username)) {
+                showToast('Bạn đã gửi yêu cầu cho người này rồi.', true);
+                return;
+            }
+
+            // Gửi yêu cầu
+            friendUser.friendRequests.push(user.username);
+            db.saveUsers(users);
             
-            // Thêm vào danh sách bạn bè của cả hai
-            const mutualFriendData = {
-                streakCount: 0,
-                lastRep: null, // Ai là người rep cuối cùng
-                lastRepTimestamp: now,
-                turn: friendUsername // Lượt của người gửi yêu cầu
-            };
-            
-            // Chuẩn bị batch write
-            const batch = writeBatch(db);
-            
-            // Cập nhật cho mình
-            const userRef = doc(db, usersCollectionPath, user.username);
-            const userUpdate = {
-                friendRequests: updatedRequests,
-                [`friends.${friendUsername}`]: mutualFriendData
-            };
-            batch.set(userRef, userUpdate, { merge: true });
-            
-            // Cập nhật cho bạn
-            const friendRef = doc(db, usersCollectionPath, friendUsername);
-            const friendUpdate = {
-                [`friends.${user.username}`]: mutualFriendData
-            };
-            batch.set(friendRef, friendUpdate, { merge: true });
-            
-            try {
-                await batch.commit();
+            showToast(`Đã gửi yêu cầu kết bạn đến @${friendUsername}.`);
+            addFriendUsernameInput.value = '';
+        };
+
+        // (FIX-ADDFRIEND) Tách hàm xử lý click trong danh sách
+        const handleFriendListClick = (e) => {
+            const user = state.currentUser;
+            const users = state.users;
+            const now = Date.now();
+
+            // 1. Chấp nhận yêu cầu
+            const acceptBtn = e.target.closest('.accept-friend-btn');
+            if (acceptBtn) {
+                const friendUsername = acceptBtn.dataset.username;
+                const friendData = users[friendUsername];
+                
+                // Xóa yêu cầu khỏi danh sách của mình
+                user.friendRequests = user.friendRequests.filter(u => u !== friendUsername);
+                
+                // Thêm vào danh sách bạn bè của cả hai
+                const mutualFriendData = {
+                    streakCount: 0,
+                    lastRep: null, // Ai là người rep cuối cùng
+                    lastRepTimestamp: now,
+                    turn: friendUsername // Lượt của người gửi yêu cầu
+                };
+                
+                user.friends[friendUsername] = { ...mutualFriendData };
+                friendData.friends[user.username] = { ...mutualFriendData };
+                
+                // (FIX) Phải cập nhật lại 'users' object với 'user' đã thay đổi
+                users[user.username] = user;
+                
+                db.saveUsers(users);
+                renderFriends(user);
                 showToast(`Bạn đã kết bạn với @${friendUsername}!`);
-                // Giao diện sẽ tự cập nhật nhờ onSnapshot
-            } catch (e) {
-                console.error("Lỗi chấp nhận bạn:", e);
-                showToast('Lỗi khi chấp nhận. Vui lòng thử lại.', true);
+                return; // Đã xử lý, không cần chạy tiếp
             }
-            return;
-        }
 
-        // 2. Từ chối yêu cầu
-        const rejectBtn = e.target.closest('.reject-friend-btn');
-        if (rejectBtn) {
-            const friendUsername = rejectBtn.dataset.username;
-            const updatedRequests = user.friendRequests.filter(u => u !== friendUsername);
-            
-            try {
-                const userRef = doc(db, usersCollectionPath, user.username);
-                await setDoc(userRef, { friendRequests: updatedRequests }, { merge: true });
+            // 2. Từ chối yêu cầu
+            const rejectBtn = e.target.closest('.reject-friend-btn');
+            if (rejectBtn) {
+                const friendUsername = rejectBtn.dataset.username;
+                user.friendRequests = user.friendRequests.filter(u => u !== friendUsername);
+                
+                // (FIX) Phải cập nhật lại 'users' object với 'user' đã thay đổi
+                users[user.username] = user;
+                
+                db.saveUsers(users);
+                renderFriends(user);
                 showToast(`Đã từ chối yêu cầu của @${friendUsername}.`, true);
-            } catch (e) {
-                console.error("Lỗi từ chối bạn:", e);
-                showToast('Lỗi khi từ chối. Vui lòng thử lại.', true);
+                return; // Đã xử lý, không cần chạy tiếp
             }
-            return;
-        }
-        
-        // 3. Xem chi tiết chuỗi chung
-        const friendCard = e.target.closest('.friend-card');
-        if (friendCard) {
-            const friendUsername = friendCard.dataset.username;
-            state.currentFriendUsername = friendUsername;
-            renderMutualStreakDetail(user, friendUsername);
-            friendListView.classList.add('hidden');
-            mutualStreakDetailView.classList.remove('hidden');
-        }
-    };
+            
+            // 3. Xem chi tiết chuỗi chung
+            const friendCard = e.target.closest('.friend-card');
+            if (friendCard) {
+                const friendUsername = friendCard.dataset.username;
+                state.currentFriendUsername = friendUsername;
+                renderMutualStreakDetail(user, friendUsername);
+                friendListView.classList.add('hidden');
+                mutualStreakDetailView.classList.remove('hidden');
+            }
+        };
 
-    // Render trang chi tiết Chuỗi Chung
-    const renderMutualStreakDetail = (user, friendUsername) => {
-        const friendUser = state.users[friendUsername];
-        const friendship = user.friends[friendUsername];
+        // Render trang chi tiết Chuỗi Chung
+        const renderMutualStreakDetail = (user, friendUsername) => {
+            const friendUser = state.users[friendUsername];
+            const friendship = user.friends[friendUsername];
+            
+            if (!friendUser || !friendship) {
+                showToast('Lỗi: Không tìm thấy bạn bè.', true);
+                // Quay lại danh sách
+                friendListView.classList.remove('hidden');
+                mutualStreakDetailView.classList.add('hidden');
+                return;
+            }
+
+            const now = Date.now();
+            const timeSinceLastRep = (now - friendship.lastRepTimestamp) / (1000 * 60 * 60); // hours
+            let isBroken = false;
+
+            // Kiểm tra reset chuỗi (quá 48h kể từ lần rep cuối cùng)
+            if (friendship.lastRep && timeSinceLastRep > 48) {
+                friendship.streakCount = 0;
+                friendship.lastRep = null;
+                friendship.turn = friendUsername; // Reset về lượt người bạn
+                isBroken = true;
+            }
+
+            // Hiển thị thông tin
+            mutualUserIcon.textContent = user.icon || '👤';
+            mutualFriendIcon.textContent = friendUser.icon || '👤';
+            mutualFriendName.textContent = friendUser.displayName || friendUsername;
+            
+            const milestone = getStreakMilestone(friendship.streakCount);
+            mutualStreakIcon.textContent = milestone.icon;
+            mutualStreakCount.textContent = friendship.streakCount;
+            mutualStreakMilestone.textContent = milestone.milestone;
+
+            // Xử lý trạng thái nút
+            if (friendship.turn === user.username) {
+                // Lượt của bạn
+                repMutualStreakBtn.disabled = false;
+                repMutualStreakBtn.textContent = '🔥 Reo Chuỗi Chung!';
+                repMutualStreakBtn.classList.add('btn-gradient');
+                repMutualStreakBtn.classList.remove('bg-gray-600', 'cursor-not-allowed');
+                mutualStreakMessage.textContent = 'Đến lượt bạn reo chuỗi!';
+                mutualStreakMessage.className = 'text-lg mt-4 h-6 text-green-400 animate-pulse';
+            } else {
+                // Lượt của bạn bè
+                repMutualStreakBtn.disabled = true;
+                repMutualStreakBtn.textContent = 'Đang chờ bạn...';
+                repMutualStreakBtn.classList.remove('btn-gradient');
+                repMutualStreakBtn.classList.add('bg-gray-600', 'cursor-not-allowed');
+                mutualStreakMessage.textContent = `Đang chờ @${friendUsername} reo chuỗi...`;
+                mutualStreakMessage.className = 'text-lg mt-4 h-6 text-yellow-400';
+            }
+            
+            if (isBroken) {
+                mutualStreakMessage.textContent = 'Chuỗi đã bị reset do quá 48h!';
+                mutualStreakMessage.className = 'text-lg mt-4 h-6 text-red-500';
+                db.saveUsers(state.users);
+            }
+        };
         
-        if (!friendUser || !friendship) {
-            showToast('Lỗi: Không tìm thấy bạn bè.', true);
-            // Quay lại danh sách
+        // Xử lý nhấn nút Reo Chuỗi Chung
+        const handleRepMutualStreak = () => {
+            const user = state.currentUser;
+            const friendUsername = state.currentFriendUsername;
+            
+            if (!friendUsername) return;
+            
+            const friendship = user.friends[friendUsername];
+            const friendData = state.users[friendUsername];
+            const friendFriendship = friendData.friends[user.username];
+            
+            if (!friendship || !friendData || !friendFriendship) {
+                 showToast('Lỗi dữ liệu bạn bè.', true);
+                 return;
+            }
+            
+            // Chỉ reo khi đến lượt
+            if (friendship.turn !== user.username) {
+                showToast('Chưa đến lượt của bạn.', true);
+                return;
+            }
+
+            const now = Date.now();
+            
+            // Nếu người rep cuối là bạn bè (hoặc chưa ai rep), tăng chuỗi
+            if (friendship.lastRep !== user.username) {
+                friendship.streakCount++;
+                friendFriendship.streakCount++;
+            }
+            
+            // Cập nhật cả 2
+            friendship.lastRep = user.username;
+            friendship.lastRepTimestamp = now;
+            friendship.turn = friendUsername; // Chuyển lượt
+            
+            friendFriendship.lastRep = user.username;
+            friendFriendship.lastRepTimestamp = now;
+            friendFriendship.turn = friendUsername; // Chuyển lượt
+            
+            db.saveUsers(state.users);
+            
+            // Render lại trang chi tiết
+            renderMutualStreakDetail(user, friendUsername);
+            
+            showToast(`Bạn đã reo chuỗi chung với @${friendUsername}!`);
+        };
+
+        // Quay lại danh sách bạn bè
+        backToFriendListBtn.onclick = () => {
+            state.currentFriendUsername = null;
             friendListView.classList.remove('hidden');
             mutualStreakDetailView.classList.add('hidden');
-            return;
-        }
-
-        const now = Date.now(); // ms
-        const lastRepTime = friendship.lastRepTimestamp ? friendship.lastRepTimestamp.toMillis() : now;
-        const timeSinceLastRep = (now - lastRepTime) / (1000 * 60 * 60); // hours
-        let isBroken = false;
-
-        // Kiểm tra reset chuỗi (quá 48h kể từ lần rep cuối cùng)
-        if (friendship.lastRep && timeSinceLastRep > 48) {
-            friendship.streakCount = 0;
-            friendship.lastRep = null;
-            friendship.turn = friendUsername; // Reset về lượt người bạn
-            isBroken = true;
-            
-            // Cập nhật cả 2 bên (vì bị trễ)
-             const batch = writeBatch(db);
-             const userRef = doc(db, usersCollectionPath, user.username);
-             const friendRef = doc(db, usersCollectionPath, friendUsername);
-             const resetData = {
-                 streakCount: 0,
-                 lastRep: null,
-                 turn: friendUsername,
-                 lastRepTimestamp: Timestamp.now()
-             };
-             batch.set(userRef, { [`friends.${friendUsername}`]: resetData }, { merge: true });
-             batch.set(friendRef, { [`friends.${user.username}`]: resetData }, { merge: true });
-             batch.commit().catch(e => console.error("Lỗi reset chuỗi:", e));
-        }
-
-        // Hiển thị thông tin
-        mutualUserIcon.textContent = user.icon || '👤';
-        mutualFriendIcon.textContent = friendUser.icon || '👤';
-        mutualFriendName.textContent = friendUser.displayName || friendUsername;
-        
-        const milestone = getStreakMilestone(friendship.streakCount);
-        mutualStreakIcon.textContent = milestone.icon;
-        mutualStreakCount.textContent = friendship.streakCount;
-        mutualStreakMilestone.textContent = milestone.milestone;
-
-        // Xử lý trạng thái nút
-        if (friendship.turn === user.username) {
-            // Lượt của bạn
-            repMutualStreakBtn.disabled = false;
-            repMutualStreakBtn.textContent = '🔥 Reo Chuỗi Chung!';
-            repMutualStreakBtn.classList.add('btn-gradient');
-            repMutualStreakBtn.classList.remove('bg-gray-600', 'cursor-not-allowed');
-            mutualStreakMessage.textContent = 'Đến lượt bạn reo chuỗi!';
-            mutualStreakMessage.className = 'text-lg mt-4 h-6 text-green-400 animate-pulse';
-        } else {
-            // Lượt của bạn bè
-            repMutualStreakBtn.disabled = true;
-            repMutualStreakBtn.textContent = 'Đang chờ bạn...';
-            repMutualStreakBtn.classList.remove('btn-gradient');
-            repMutualStreakBtn.classList.add('bg-gray-600', 'cursor-not-allowed');
-            mutualStreakMessage.textContent = `Đang chờ @${friendUsername} reo chuỗi...`;
-            mutualStreakMessage.className = 'text-lg mt-4 h-6 text-yellow-400';
-        }
-        
-        if (isBroken) {
-            mutualStreakMessage.textContent = 'Chuỗi đã bị reset do quá 48h!';
-            mutualStreakMessage.className = 'text-lg mt-4 h-6 text-red-500';
-        }
-    };
-    
-    // Xử lý nhấn nút Reo Chuỗi Chung
-    const handleRepMutualStreak = async () => {
-        const user = state.currentUser;
-        const friendUsername = state.currentFriendUsername;
-        
-        if (!friendUsername) return;
-        
-        const friendship = user.friends[friendUsername];
-        
-        if (!friendship) {
-             showToast('Lỗi dữ liệu bạn bè.', true);
-             return;
-        }
-        
-        // Chỉ reo khi đến lượt
-        if (friendship.turn !== user.username) {
-            showToast('Chưa đến lượt của bạn.', true);
-            return;
-        }
-
-        const now = Timestamp.now();
-        let newStreakCount = friendship.streakCount;
-        
-        // Nếu người rep cuối là bạn bè (hoặc chưa ai rep), tăng chuỗi
-        if (friendship.lastRep !== user.username) {
-            newStreakCount++;
-        }
-        
-        const updateData = {
-            streakCount: newStreakCount,
-            lastRep: user.username,
-            lastRepTimestamp: now,
-            turn: friendUsername // Chuyển lượt
+            // Render lại danh sách bạn bè để cập nhật số chuỗi
+            renderFriends(state.currentUser);
         };
-        
-        // Cập nhật cả 2 bên
-        const batch = writeBatch(db);
-        const userRef = doc(db, usersCollectionPath, user.username);
-        const friendRef = doc(db, usersCollectionPath, friendUsername);
-        
-        batch.set(userRef, { [`friends.${friendUsername}`]: updateData }, { merge: true });
-        batch.set(friendRef, { [`friends.${user.username}`]: updateData }, { merge: true });
-        
-        try {
-            await batch.commit();
-            showToast(`Bạn đã reo chuỗi chung với @${friendUsername}!`);
-            // Giao diện sẽ tự cập nhật nhờ onSnapshot
-        } catch (e) {
-            console.error("Lỗi reo chuỗi:", e);
-            showToast('Lỗi khi reo chuỗi. Thử lại.', true);
-        }
-    };
 
-    // Quay lại danh sách bạn bè
-    backToFriendListBtn.onclick = () => {
-        state.currentFriendUsername = null;
-        friendListView.classList.remove('hidden');
-        mutualStreakDetailView.classList.add('hidden');
-        // Render lại danh sách bạn bè để cập nhật (không cần thiết vì có onSnapshot)
-        // renderFriends(state.currentUser);
-    };
-
-    // Render danh sách bạn bè và yêu cầu
-    const renderFriends = (user) => {
-        // Render Yêu Cầu
-        friendRequestsList.innerHTML = '';
-        if (!user.friendRequests || user.friendRequests.length === 0) {
-            friendRequestsList.innerHTML = '<p class="text-gray-400">Không có yêu cầu nào.</p>';
-        } else {
-            user.friendRequests.forEach(username => {
-                const friendUser = state.users[username];
-                if (!friendUser) return; // Bỏ qua nếu user không tồn tại
-                
-                const displayName = friendUser.displayName || username;
-                const icon = friendUser.icon || '👤';
-                
-                friendRequestsList.innerHTML += `
-                    <div class="flex items-center justify-between bg-gray-800 p-3 rounded-lg">
-                        <div class="flex items-center gap-3">
-                            <div class="user-icon user-icon-sm">${icon}</div>
-                            <span class="font-medium">${displayName} (@${username})</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <button data-username="${username}" class="accept-friend-btn bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-1 px-2 rounded transition">Chấp Nhận</button>
-                            <button data-username="${username}" class="reject-friend-btn bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1 px-2 rounded transition">Từ Chối</button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-        
-        // Render Danh Sách Bạn Bè
-        friendListContainer.innerHTML = '';
-        const friends = user.friends ? Object.keys(user.friends) : [];
-        if (friends.length === 0) {
-            friendListContainer.innerHTML = '<p class="text-gray-400">Bạn chưa có người bạn nào. Hãy thêm bạn ở trên!</p>';
-        } else {
-            friends.forEach(username => {
-                const friendUser = state.users[username];
-                const friendship = user.friends[username];
-                
-                if (!friendUser || !friendship) return; // Bỏ qua nếu người dùng bị xóa hoặc dữ liệu lỗi
-                
-                const displayName = friendUser.displayName || username;
-                const icon = friendUser.icon || '👤';
-                
-                // Lấy icon mốc chuỗi chung
-                const milestone = getStreakMilestone(friendship.streakCount);
-                
-                // Kiểm tra trạng thái lượt
-                let statusText = '';
-                let statusClass = '';
-                if (friendship.turn === user.username) {
-                    statusText = 'Đến lượt bạn!';
-                    statusClass = 'text-green-400 animate-pulse';
-                } else {
-                    statusText = `Đang chờ @${username}`;
-                    statusClass = 'text-yellow-400';
-                }
-
-                friendListContainer.innerHTML += `
-                    <div data-username="${username}" class="friend-card flex items-center justify-between bg-gray-700 p-4 rounded-lg cursor-pointer hover:bg-gray-600 transition duration-200">
-                        <div class="flex items-center gap-3">
-                            <div class="user-icon user-icon-sm">${icon}</div>
-                            <div>
-                                <span class="font-bold text-lg text-white">${displayName}</span>
-                                <p class="text-sm ${statusClass}">${statusText}</p>
+        // Render danh sách bạn bè và yêu cầu
+        const renderFriends = (user) => {
+            // Render Yêu Cầu
+            friendRequestsList.innerHTML = '';
+            if (user.friendRequests.length === 0) {
+                friendRequestsList.innerHTML = '<p class="text-gray-400">Không có yêu cầu nào.</p>';
+            } else {
+                user.friendRequests.forEach(username => {
+                    const friendUser = state.users[username];
+                    const displayName = friendUser?.displayName || username;
+                    const icon = friendUser?.icon || '👤';
+                    
+                    friendRequestsList.innerHTML += `
+                        <div class="flex items-center justify-between bg-gray-800 p-3 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <div class="user-icon user-icon-sm">${icon}</div>
+                                <span class="font-medium">${displayName} (@${username})</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button data-username="${username}" class="accept-friend-btn bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-1 px-2 rounded transition">Chấp Nhận</button>
+                                <button data-username="${username}" class="reject-friend-btn bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1 px-2 rounded transition">Từ Chối</button>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2 text-2xl font-bold text-white">
-                            <span>${milestone.icon}</span>
-                            <span>${friendship.streakCount}</span>
+                    `;
+                });
+            }
+            
+            // Render Danh Sách Bạn Bè
+            friendListContainer.innerHTML = '';
+            const friends = Object.keys(user.friends);
+            if (friends.length === 0) {
+                friendListContainer.innerHTML = '<p class="text-gray-400">Bạn chưa có người bạn nào. Hãy thêm bạn ở trên!</p>';
+            } else {
+                friends.forEach(username => {
+                    const friendUser = state.users[username];
+                    const friendship = user.friends[username];
+                    
+                    if (!friendUser) return; // Bỏ qua nếu người dùng bị xóa
+                    
+                    const displayName = friendUser.displayName || username;
+                    const icon = friendUser.icon || '👤';
+                    
+                    // Lấy icon mốc chuỗi chung
+                    const milestone = getStreakMilestone(friendship.streakCount);
+                    
+                    // Kiểm tra trạng thái lượt
+                    let statusText = '';
+                    let statusClass = '';
+                    if (friendship.turn === user.username) {
+                        statusText = 'Đến lượt bạn!';
+                        statusClass = 'text-green-400 animate-pulse';
+                    } else {
+                        statusText = `Đang chờ @${username}`;
+                        statusClass = 'text-yellow-400';
+                    }
+
+                    friendListContainer.innerHTML += `
+                        <div data-username="${username}" class="friend-card flex items-center justify-between bg-gray-700 p-4 rounded-lg cursor-pointer hover:bg-gray-600 transition duration-200">
+                            <div class="flex items-center gap-3">
+                                <div class="user-icon user-icon-sm">${icon}</div>
+                                <div>
+                                    <span class="font-bold text-lg text-white">${displayName}</span>
+                                    <p class="text-sm ${statusClass}">${statusText}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 text-2xl font-bold text-white">
+                                <span>${milestone.icon}</span>
+                                <span>${friendship.streakCount}</span>
+                            </div>
                         </div>
-                    </div>
-                `;
-            });
-        }
-    };
-
-    // Render Thử Thách (Player)
-    const renderChallengesPlayer = (user) => {
-        challengeListPlayer.innerHTML = '';
-        const userChallenges = state.challenges.filter(c => 
-            !user.answeredChallenges || !user.answeredChallenges.includes(c.id) // Chưa trả lời
-        );
-
-        if (userChallenges.length === 0) {
-            challengeListPlayer.innerHTML = '<p class="text-gray-400 text-center">Tuyệt vời! Bạn đã hoàn thành tất cả thử thách!</p>';
-            return;
-        }
-
-        userChallenges.forEach(challenge => {
-            const card = document.createElement('div');
-            card.className = 'bg-gray-700 p-6 rounded-lg shadow-md border border-gray-600';
-            card.innerHTML = `
-                <h3 class="text-xl font-semibold text-white mb-4">${challenge.question}</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                    <button data-id="${challenge.id}" data-answer="1" class="challenge-answer-btn w-full text-left bg-gray-600 hover:bg-blue-500 text-white font-medium py-3 px-4 rounded-lg transition duration-200">1. ${challenge.options[0]}</button>
-                    <button data-id="${challenge.id}" data-answer="2" class="challenge-answer-btn w-full text-left bg-gray-600 hover:bg-blue-500 text-white font-medium py-3 px-4 rounded-lg transition duration-200">2. ${challenge.options[1]}</button>
-                    <button data-id="${challenge.id}" data-answer="3" class="challenge-answer-btn w-full text-left bg-gray-600 hover:bg-blue-500 text-white font-medium py-3 px-4 rounded-lg transition duration-200">3. ${challenge.options[2]}</button>
-                    <button data-id="${challenge.id}" data-answer="4" class="challenge-answer-btn w-full text-left bg-gray-600 hover:bg-blue-500 text-white font-medium py-3 px-4 rounded-lg transition duration-200">4. ${challenge.options[3]}</button>
-                </div>
-                <!-- Nút xem giải thích (ẩn) -->
-                <button data-id="${challenge.id}" class="show-explanation-btn hidden mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
-                    Xem Giải Thích
-                </button>
-                <p class="text-sm text-yellow-400 mt-2 text-right">Phần thưởng: 💰 ${challenge.reward}</p>
-            `;
-            challengeListPlayer.appendChild(card);
-        });
-    };
-
-    // Xử lý trả lời Thử Thách
-    const handleChallengeAnswer = async (e) => {
-        const btn = e.target.closest('.challenge-answer-btn');
-        if (!btn) return;
-        
-        const id = btn.dataset.id;
-        const answer = parseInt(btn.dataset.answer);
-        const challenge = state.challenges.find(c => c.id === id);
-        const user = state.currentUser;
-        const card = btn.closest('.bg-gray-700');
-        const allButtons = card.querySelectorAll('.challenge-answer-btn');
-        
-        if (!challenge) return;
-
-        // Vô hiệu hóa các nút
-        const disableButtons = () => {
-            allButtons.forEach(b => {
-                b.disabled = true;
-                b.classList.add('opacity-50', 'cursor-not-allowed');
-                // Đánh dấu đáp án đúng
-                if (parseInt(b.dataset.answer) === challenge.answer) {
-                    b.classList.remove('bg-gray-600', 'hover:bg-blue-500');
-                    b.classList.add('bg-green-600');
-                }
-            });
-            // Hiện nút xem giải thích
-            const explanationBtn = card.querySelector('.show-explanation-btn');
-            if (explanationBtn) {
-                explanationBtn.classList.remove('hidden');
+                    `;
+                });
             }
         };
-        
-        // Hàm xử lý khi trả lời đúng
-        const handleCorrectAnswer = async () => {
-            const newBalance = user.balance + challenge.reward;
-            const newAnswered = [...(user.answeredChallenges || []), id];
+
+        // Render Thử Thách (Player)
+        const renderChallengesPlayer = (user) => {
+            challengeListPlayer.innerHTML = '';
+            const userChallenges = state.challenges.filter(c => 
+                !user.answeredChallenges.includes(c.id) // Chưa trả lời
+            );
+
+            if (userChallenges.length === 0) {
+                challengeListPlayer.innerHTML = '<p class="text-gray-400 text-center">Tuyệt vời! Bạn đã hoàn thành tất cả thử thách!</p>';
+                return;
+            }
+
+            userChallenges.forEach(challenge => {
+                const card = document.createElement('div');
+                card.className = 'bg-gray-700 p-6 rounded-lg shadow-md border border-gray-600';
+                card.innerHTML = `
+                    <h3 class="text-xl font-semibold text-white mb-4">${challenge.question}</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                        <button data-id="${challenge.id}" data-answer="1" class="challenge-answer-btn w-full text-left bg-gray-600 hover:bg-blue-500 text-white font-medium py-3 px-4 rounded-lg transition duration-200">1. ${challenge.options[0]}</button>
+                        <button data-id="${challenge.id}" data-answer="2" class="challenge-answer-btn w-full text-left bg-gray-600 hover:bg-blue-500 text-white font-medium py-3 px-4 rounded-lg transition duration-200">2. ${challenge.options[1]}</button>
+                        <button data-id="${challenge.id}" data-answer="3" class="challenge-answer-btn w-full text-left bg-gray-600 hover:bg-blue-500 text-white font-medium py-3 px-4 rounded-lg transition duration-200">3. ${challenge.options[2]}</button>
+                        <button data-id="${challenge.id}" data-answer="4" class="challenge-answer-btn w-full text-left bg-gray-600 hover:bg-blue-500 text-white font-medium py-3 px-4 rounded-lg transition duration-200">4. ${challenge.options[3]}</button>
+                    </div>
+                    <!-- Nút xem giải thích (ẩn) -->
+                    <button data-id="${challenge.id}" class="show-explanation-btn hidden mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                        Xem Giải Thích
+                    </button>
+                    <p class="text-sm text-yellow-400 mt-2 text-right">Phần thưởng: 💰 ${challenge.reward}</p>
+                `;
+                challengeListPlayer.appendChild(card);
+            });
+        };
+
+        // Xử lý trả lời Thử Thách
+        const handleChallengeAnswer = async (e) => {
+            const btn = e.target.closest('.challenge-answer-btn');
+            if (!btn) return;
             
-            try {
-                await setDoc(doc(db, usersCollectionPath, user.username), {
-                    balance: newBalance,
-                    answeredChallenges: newAnswered
-                }, { merge: true });
+            const id = btn.dataset.id;
+            const answer = parseInt(btn.dataset.answer);
+            const challenge = state.challenges.find(c => c.id === id);
+            const user = state.currentUser;
+            const card = btn.closest('.bg-gray-700');
+            const allButtons = card.querySelectorAll('.challenge-answer-btn');
+            
+            if (!challenge) return;
+
+            // Vô hiệu hóa các nút
+            const disableButtons = () => {
+                allButtons.forEach(b => {
+                    b.disabled = true;
+                    b.classList.add('opacity-50', 'cursor-not-allowed');
+                    // Đánh dấu đáp án đúng
+                    if (parseInt(b.dataset.answer) === challenge.answer) {
+                        b.classList.remove('bg-gray-600', 'hover:bg-blue-500');
+                        b.classList.add('bg-green-600');
+                    }
+                });
+                // Hiện nút xem giải thích
+                const explanationBtn = card.querySelector('.show-explanation-btn');
+                if (explanationBtn) {
+                    explanationBtn.classList.remove('hidden');
+                }
+            };
+            
+            // Hàm xử lý khi trả lời đúng
+            const handleCorrectAnswer = () => {
+                user.balance += challenge.reward;
+                user.answeredChallenges.push(id);
+                db.saveUsers(state.users);
                 
                 showToast(`Chính xác! Bạn nhận được 💰 ${challenge.reward}!`);
                 addActivityLog(`đã trả lời đúng thử thách "${challenge.question}"`, 'challenge', user);
-                // Giao diện sẽ tự cập nhật nhờ onSnapshot
-                // playerBalance.textContent = newBalance;
-                // renderShopPlayer(state.currentUser); // Sẽ tự cập nhật
+
+                // Cập nhật số dư
+                playerBalance.textContent = user.balance;
+                
+                // Cập nhật Cửa Hàng (để kích hoạt nút mua nếu đủ tiền)
+                renderShopPlayer(user);
                 
                 // Đánh dấu nút đúng
                 btn.classList.remove('bg-gray-600', 'hover:bg-blue-500');
                 btn.classList.add('bg-green-600');
+                
                 disableButtons();
-                
-            } catch (e) {
-                console.error("Lỗi cộng tiền:", e);
-                showToast('Lỗi khi cộng tiền, vui lòng thử lại.', true);
-            }
-        };
-        
-        // Hàm xử lý khi trả lời sai
-        const handleWrongAnswer = async () => {
-            btn.classList.remove('bg-gray-600', 'hover:bg-blue-500');
-            btn.classList.add('bg-red-600', 'shake-error');
-            // Xóa animation để có thể lắc lại
-            setTimeout(() => btn.classList.remove('shake-error'), 500);
+            };
+            
+            // Hàm xử lý khi trả lời sai
+            const handleWrongAnswer = async () => {
+                btn.classList.remove('bg-gray-600', 'hover:bg-blue-500');
+                btn.classList.add('bg-red-600', 'shake-error');
+                // Xóa animation để có thể lắc lại
+                setTimeout(() => btn.classList.remove('shake-error'), 500);
 
-            if (user.balance >= 5) {
-                const retry = await showModal(
-                    'Bạn có muốn thử lại?',
-                    `Bạn đã trả lời sai! Bạn có muốn dùng 💰 5 để thử lại không? (Bạn đang có 💰 ${user.balance})`,
-                    'Dùng 💰 5',
-                    true,
-                    'Không, bỏ qua'
-                );
-                
-                if (retry) {
-                    // Trừ tiền và cho thử lại
-                    try {
-                        const newBalance = user.balance - 5;
-                        await setDoc(doc(db, usersCollectionPath, user.username), { balance: newBalance }, { merge: true });
+                if (user.balance >= 5) {
+                    const retry = await showModal(
+                        'Bạn có muốn thử lại?',
+                        `Bạn đã trả lời sai! Bạn có muốn dùng 💰 5 để thử lại không? (Bạn đang có 💰 ${user.balance})`,
+                        'Dùng 💰 5',
+                        true,
+                        'Không, bỏ qua'
+                    );
+                    
+                    if (retry) {
+                        // Trừ tiền và cho thử lại
+                        user.balance -= 5;
+                        db.saveUsers(state.users);
+                        playerBalance.textContent = user.balance;
                         showToast('Bạn đã bị trừ 💰 5. Hãy chọn lại!', true);
                         
                         // Kích hoạt lại nút sai
                         btn.classList.add('bg-gray-600', 'hover:bg-blue-500');
                         btn.classList.remove('bg-red-600');
-                        
-                    } catch (e) {
-                        console.error("Lỗi trừ tiền:", e);
-                        showToast('Lỗi khi trừ tiền, vui lòng thử lại.', true);
+                        // (Không return, để người dùng bấm lại)
+                    } else {
+                        // Người dùng chọn "Không", đánh dấu đã trả lời và hiện đáp án
+                        user.answeredChallenges.push(id);
+                        db.saveUsers(state.users);
+                        disableButtons();
                     }
                 } else {
-                    // Người dùng chọn "Không", đánh dấu đã trả lời và hiện đáp án
-                    const newAnswered = [...(user.answeredChallenges || []), id];
-                    await setDoc(doc(db, usersCollectionPath, user.username), { answeredChallenges: newAnswered }, { merge: true });
+                    // Không đủ tiền, tự động thất bại
+                    showToast('Bạn đã trả lời sai và không đủ 💰 5 để thử lại.', true);
+                    user.answeredChallenges.push(id);
+                    db.saveUsers(state.users);
                     disableButtons();
                 }
+            };
+
+            if (answer === challenge.answer) {
+                handleCorrectAnswer();
             } else {
-                // Không đủ tiền, tự động thất bại
-                showToast('Bạn đã trả lời sai và không đủ 💰 5 để thử lại.', true);
-                const newAnswered = [...(user.answeredChallenges || []), id];
-                await setDoc(doc(db, usersCollectionPath, user.username), { answeredChallenges: newAnswered }, { merge: true });
-                disableButtons();
+                await handleWrongAnswer();
             }
         };
-
-        if (answer === challenge.answer) {
-            handleCorrectAnswer();
-        } else {
-            await handleWrongAnswer();
-        }
-    };
-    
-    // Xử lý xem Giải Thích
-    const handleShowExplanation = (e) => {
-        const btn = e.target.closest('.show-explanation-btn');
-        if (!btn) return;
         
-        const id = btn.dataset.id;
-        const challenge = state.challenges.find(c => c.id === id);
-        
-        if (!challenge) return;
-        
-        let body = `<p class="text-lg">${challenge.explanationText || 'Admin chưa cung cấp giải thích cho câu hỏi này.'}</p>`;
-        
-        if (challenge.explanationImg) {
-            body += `<img src="${challenge.explanationImg}" alt="Hình ảnh giải thích" class="mt-4 rounded-lg w-full object-contain" onerror="this.style.display='none'">`;
-        }
-        
-        // Dùng hàm modal, khi nhấn OK thì xóa câu hỏi
-        showModal('Giải Thích Đáp Án', body).then(() => {
-            // Sau khi user nhấn "OK"
-            const card = btn.closest('.bg-gray-700');
-            if (card) {
-                card.style.transition = 'opacity 0.5s, transform 0.5s';
-                card.style.opacity = '0';
-                card.style.transform = 'scale(0.9)';
-                setTimeout(() => {
-                    card.remove();
-                    // Kiểm tra nếu hết câu hỏi
-                    if (challengeListPlayer.children.length === 0) {
-                        renderChallengesPlayer(state.currentUser);
-                    }
-                }, 500);
-            }
-        });
-    };
-
-    // Render Cửa Hàng (Player)
-    const renderShopPlayer = (user) => {
-        shopListPlayer.innerHTML = '';
-        if (state.shopItems.length === 0) {
-            shopListPlayer.innerHTML = '<p class="text-gray-400 text-center col-span-full">Cửa hàng đang cập nhật vật phẩm.</p>';
-            return;
-        }
-
-        state.shopItems.forEach(item => {
-            const isOwned = user.inventory && user.inventory.some(invItem => invItem.id === item.id);
+        // Xử lý xem Giải Thích
+        const handleShowExplanation = (e) => {
+            const btn = e.target.closest('.show-explanation-btn');
+            if (!btn) return;
             
-            let priceHtml = '';
-            let finalPrice = item.price;
+            const id = btn.dataset.id;
+            const challenge = state.challenges.find(c => c.id === id);
             
-            if (item.sale > 0 && item.sale <= 100) {
-                finalPrice = Math.round(item.price * (1 - item.sale / 100));
-                priceHtml = `
-                    <span class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">-${item.sale}%</span>
-                    <div class="text-3xl font-bold text-green-400 mb-2">💰 ${finalPrice}</div>
-                    <div class="text-sm text-gray-400 line-through mb-4">Giá gốc: 💰 ${item.price}</div>
-                `;
-            } else {
-                priceHtml = `<div class="text-3xl font-bold text-green-400 mb-4">💰 ${item.price}</div>`;
+            if (!challenge) return;
+            
+            let body = `<p class="text-lg">${challenge.explanationText || 'Admin chưa cung cấp giải thích cho câu hỏi này.'}</p>`;
+            
+            if (challenge.explanationImg) {
+                body += `<img src="${challenge.explanationImg}" alt="Hình ảnh giải thích" class="mt-4 rounded-lg w-full object-contain" onerror="this.style.display='none'">`;
             }
             
-            const canAfford = user.balance >= finalPrice;
+            // Dùng hàm modal, khi nhấn OK thì xóa câu hỏi
+            showModal('Giải Thích Đáp Án', body).then(() => {
+                // Sau khi user nhấn "OK"
+                const card = btn.closest('.bg-gray-700');
+                if (card) {
+                    card.style.transition = 'opacity 0.5s, transform 0.5s';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.9)';
+                    setTimeout(() => {
+                        card.remove();
+                        // Kiểm tra nếu hết câu hỏi
+                        if (challengeListPlayer.children.length === 0) {
+                            renderChallengesPlayer(state.currentUser);
+                        }
+                    }, 500);
+                }
+            });
+        };
 
-            shopListPlayer.innerHTML += `
-                <div class="bg-gray-700 p-6 rounded-lg shadow-md border border-gray-600 flex flex-col justify-between relative">
-                    <div>
-                        <h3 class="text-2xl font-bold text-white mb-2">${item.name}</h3>
-                        ${priceHtml}
+        // Render Cửa Hàng (Player)
+        const renderShopPlayer = (user) => {
+            shopListPlayer.innerHTML = '';
+            if (state.shopItems.length === 0) {
+                shopListPlayer.innerHTML = '<p class="text-gray-400 text-center col-span-full">Cửa hàng đang cập nhật vật phẩm.</p>';
+                return;
+            }
+
+            state.shopItems.forEach(item => {
+                const isOwned = user.inventory.some(invItem => invItem.id === item.id);
+                
+                let priceHtml = '';
+                let finalPrice = item.price;
+                
+                if (item.sale > 0 && item.sale <= 100) {
+                    finalPrice = Math.round(item.price * (1 - item.sale / 100));
+                    priceHtml = `
+                        <span class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">-${item.sale}%</span>
+                        <div class="text-3xl font-bold text-green-400 mb-2">💰 ${finalPrice}</div>
+                        <div class="text-sm text-gray-400 line-through mb-4">Giá gốc: 💰 ${item.price}</div>
+                    `;
+                } else {
+                    priceHtml = `<div class="text-3xl font-bold text-green-400 mb-4">💰 ${item.price}</div>`;
+                }
+                
+                const canAfford = user.balance >= finalPrice;
+
+                shopListPlayer.innerHTML += `
+                    <div class="bg-gray-700 p-6 rounded-lg shadow-md border border-gray-600 flex flex-col justify-between relative">
+                        <div>
+                            <h3 class="text-2xl font-bold text-white mb-2">${item.name}</h3>
+                            ${priceHtml}
+                        </div>
+                        <button 
+                            data-id="${item.id}" 
+                            data-price="${finalPrice}" 
+                            class="buy-item-btn w-full text-white font-medium py-3 px-4 rounded-lg transition duration-200 ${isOwned ? 'bg-gray-500 cursor-not-allowed' : (canAfford ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-500 cursor-not-allowed')}"
+                            ${(isOwned || !canAfford) ? 'disabled' : ''}
+                        >
+                            ${isOwned ? 'Đã Sở Hữu' : (canAfford ? 'Mua Ngay' : 'Không Đủ Tiền')}
+                        </button>
                     </div>
-                    <button 
-                        data-id="${item.id}" 
-                        data-price="${finalPrice}" 
-                        class="buy-item-btn w-full text-white font-medium py-3 px-4 rounded-lg transition duration-200 ${isOwned ? 'bg-gray-500 cursor-not-allowed' : (canAfford ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-500 cursor-not-allowed')}"
-                        ${(isOwned || !canAfford) ? 'disabled' : ''}
-                    >
-                        ${isOwned ? 'Đã Sở Hữu' : (canAfford ? 'Mua Ngay' : 'Không Đủ Tiền')}
-                    </button>
-                </div>
-            `;
-        });
-    };
+                `;
+            });
+        };
 
-    // Xử lý Mua Vật Phẩm
-    const handleBuyItem = async (e) => {
-        const btn = e.target.closest('.buy-item-btn');
-        if (!btn) return;
+        // Xử lý Mua Vật Phẩm
+        const handleBuyItem = (e) => {
+            const btn = e.target.closest('.buy-item-btn');
+            if (!btn) return;
 
-        const id = btn.dataset.id;
-        const price = parseInt(btn.dataset.price);
-        const item = state.shopItems.find(i => i.id === id);
-        const user = state.currentUser;
+            const id = btn.dataset.id;
+            const price = parseInt(btn.dataset.price);
+            const item = state.shopItems.find(i => i.id === id);
+            const user = state.currentUser;
 
-        if (!item || user.balance < price || (user.inventory && user.inventory.some(invItem => invItem.id === item.id))) {
-            showToast('Không thể mua vật phẩm!', true);
-            return;
-        }
-        
-        const newBalance = user.balance - price;
-        const newItem = { id: item.id, name: item.name, boughtAt: Timestamp.now() };
-        const newInventory = [...(user.inventory || []), newItem];
-        
-        try {
-            await setDoc(doc(db, usersCollectionPath, user.username), {
-                balance: newBalance,
-                inventory: newInventory
-            }, { merge: true });
+            if (!item || user.balance < price || user.inventory.some(invItem => invItem.id === item.id)) {
+                showToast('Không thể mua vật phẩm!', true);
+                return;
+            }
+
+            user.balance -= price;
+            user.inventory.push({ id: item.id, name: item.name, boughtAt: Date.now() });
+            db.saveUsers(state.users);
             
             showToast(`Bạn đã mua ${item.name}!`, false);
             addActivityLog(`đã đổi vật phẩm "${item.name}"`, 'purchase', user);
             
-            // Giao diện sẽ tự cập nhật nhờ onSnapshot
+            // Render lại số dư và cửa hàng
+            playerBalance.textContent = user.balance;
+            renderShopPlayer(user);
             
             // Hiệu ứng mũi tên chỉ
             viewGiftsPointer.classList.remove('hidden');
             setTimeout(() => {
                 viewGiftsPointer.classList.add('hidden');
             }, 5000);
-        } catch(e) {
-            console.error("Lỗi mua vật phẩm:", e);
-            showToast('Lỗi khi mua, vui lòng thử lại.', true);
-        }
-    };
-    
-    // Xử lý xem Quà Đã Đổi
-    viewMyGiftsBtn.onclick = () => {
-        const user = state.currentUser;
-        let body = '';
-        if (!user.inventory || user.inventory.length === 0) {
-            body = '<p>Bạn chưa sở hữu vật phẩm nào.</p>';
-        } else {
-            body = '<ul class="list-disc list-inside space-y-2">';
-            user.inventory.forEach(item => {
-                const date = item.boughtAt ? item.boughtAt.toDate().toLocaleDateString('vi-VN') : 'N/A';
-                body += `<li><span class="font-semibold">${item.name}</span> (Đổi ngày ${date})</li>`;
-            });
-            body += '</ul>';
-        }
-        showModal('Vật Phẩm Của Bạn', body);
-    };
-    
-    // Xử lý Cập nhật Profile
-    const handleProfileUpdate = async (e) => {
-        e.preventDefault();
-        const user = state.currentUser;
-        const now = Date.now();
-        const COOLDOWN_DAYS = 15;
-        const COOLDOWN_MS = COOLDOWN_DAYS * 24 * 60 * 60 * 1000;
-        
-        const newName = profileDisplaynameInput.value.trim();
-        const newIcon = profileIconInput.value.trim();
-        const newPassword = profilePasswordInput.value.trim();
-        
-        let canUpdate = true;
-        let updates = {};
-        let newCooldowns = { ...user.cooldowns };
-
-        // Kiểm tra Tên
-        if (newName !== user.displayName) {
-            const cd = user.cooldowns.name ? user.cooldowns.name.toMillis() : 0;
-            if (cd && now < cd) {
-                showToast(`Bạn chỉ có thể đổi tên sau ${new Date(cd).toLocaleDateString('vi-VN')}.`, true);
-                canUpdate = false;
-            } else {
-                updates.displayName = newName;
-                newCooldowns.name = Timestamp.fromMillis(now + COOLDOWN_MS);
-            }
-        }
-        
-        // Kiểm tra Icon
-        if (newIcon !== user.icon) {
-            const cd = user.cooldowns.icon ? user.cooldowns.icon.toMillis() : 0;
-            if (cd && now < cd) {
-                showToast(`Bạn chỉ có thể đổi icon sau ${new Date(cd).toLocaleDateString('vi-VN')}.`, true);
-                canUpdate = false;
-            } else {
-                updates.icon = newIcon;
-                newCooldowns.icon = Timestamp.fromMillis(now + COOLDOWN_MS);
-            }
-        }
-        
-        // Kiểm tra Mật khẩu
-        if (newPassword) {
-            const cd = user.cooldowns.password ? user.cooldowns.password.toMillis() : 0;
-            if (cd && now < cd) {
-                showToast(`Bạn chỉ có thể đổi mật khẩu sau ${new Date(cd).toLocaleDateString('vi-VN')}.`, true);
-                canUpdate = false;
-            } else {
-                updates.password = newPassword;
-                newCooldowns.password = Timestamp.fromMillis(now + COOLDOWN_MS);
-            }
-        }
-        
-        if (canUpdate && Object.keys(updates).length > 0) {
-            updates.cooldowns = newCooldowns;
-            try {
-                await setDoc(doc(db, usersCollectionPath, user.username), updates, { merge: true });
-                showToast('Cập nhật thông tin thành công!');
-                // Giao diện sẽ tự cập nhật (initPlayerView sẽ được gọi bởi onSnapshot)
-            } catch (e) {
-                console.error("Lỗi cập nhật profile:", e);
-                showToast('Lỗi khi cập nhật, vui lòng thử lại.', true);
-            }
-        } else if (Object.keys(updates).length === 0) {
-            showToast('Không có gì thay đổi.', false);
-        }
-    };
-
-    // --- Admin Functions ---
-
-    // Render Danh sách User (Admin)
-    const renderUserList = () => {
-        userListTbody.innerHTML = '';
-        Object.values(state.users).forEach(user => {
-            userListTbody.innerHTML += `
-                <tr class="bg-gray-800 border-b border-gray-700 hover:bg-gray-700">
-                    <td class="py-4 px-6"><div class="user-icon user-icon-sm">${user.icon || '👤'}</div></td>
-                    <td class="py-4 px-6 font-medium">${user.displayName || '(Chưa đặt)'}</td>
-                    <td class="py-4 px-6">${user.username}</td>
-                    <td class="py-4 px-6">💰 ${user.balance}</td>
-                    <td class="py-4 px-6 space-x-2">
-                        <button type="button" data-username="${user.username}" class="edit-user-btn text-yellow-400 hover:text-yellow-300 font-medium">Sửa</button>
-                        <button type="button" data-username="${user.username}" class="delete-user-btn text-red-500 hover:text-red-400 font-medium">Xóa</button>
-                    </td>
-                </tr>
-            `;
-        });
-    };
-    
-    // Xóa form User (Admin)
-    const clearUserForm = () => {
-        userUsernameInput.value = '';
-        userDisplaynameInput.value = '';
-        userIconInput.value = '';
-        userPasswordInput.value = '';
-        userBalanceInput.value = '0';
-        userUsernameInput.readOnly = false; // Kích hoạt lại
-        userForm.dataset.mode = 'add'; // Đặt chế độ 'thêm mới'
-    };
-    
-    // Xử lý Form User (Thêm/Sửa)
-    const handleUserFormSubmit = async (e) => {
-        e.preventDefault();
-        
-        const username = userUsernameInput.value.trim();
-        const displayName = userDisplaynameInput.value.trim();
-        const icon = userIconInput.value.trim();
-        const password = userPasswordInput.value.trim();
-        const balance = parseInt(userBalanceInput.value) || 0;
-        
-        if (!username || !password) {
-            showToast('Tài khoản và mật khẩu là bắt buộc!', true);
-            return;
-        }
-
-        const mode = userForm.dataset.mode || 'add';
-        const userRef = doc(db, usersCollectionPath, username);
-
-        if (mode === 'add') {
-            // Thêm Mới
-            if (state.users[username]) {
-                showToast('Tài khoản này đã tồn tại!', true);
-                return;
-            }
-            const newUser = {
-                username,
-                password,
-                displayName: displayName || username,
-                icon: icon || '👤',
-                balance,
-                inventory: [],
-                answeredChallenges: [],
-                friendRequests: [],
-                friends: {},
-                notifications: [],
-                hasNewNotification: false,
-                cooldowns: { name: null, icon: null, password: null },
-                createdAt: serverTimestamp()
-            };
-            try {
-                await setDoc(userRef, newUser);
-                showToast('Đã thêm người dùng mới!', false);
-            } catch (e) {
-                console.error("Lỗi thêm user:", e);
-                showToast('Lỗi khi thêm user.', true);
-            }
-        } else {
-            // Sửa
-            const updates = {
-                displayName: displayName,
-                icon: icon,
-                password: password,
-                balance: balance
-            };
-            try {
-                await setDoc(userRef, updates, { merge: true });
-                showToast(`Đã cập nhật @${username}!`, false);
-            } catch (e) {
-                console.error("Lỗi sửa user:", e);
-                showToast('Lỗi khi sửa user.', true);
-            }
-        }
-        
-        // Giao diện sẽ tự cập nhật nhờ onSnapshot
-        // renderUserList();
-        clearUserForm();
-    };
-
-    // Xử lý nút Sửa/Xóa User
-    const handleUserActions = (e) => {
-        // Sửa
-        const editBtn = e.target.closest('.edit-user-btn');
-        if (editBtn) {
-            const username = editBtn.dataset.username;
-            const user = state.users[username];
-            if (!user) return;
-            
-            userUsernameInput.value = user.username;
-            userDisplaynameInput.value = user.displayName || '';
-            userIconInput.value = user.icon || '';
-            userPasswordInput.value = user.password;
-            userBalanceInput.value = user.balance;
-            
-            userUsernameInput.readOnly = true; // Khóa username khi sửa
-            userForm.dataset.mode = 'edit'; // Đặt chế độ 'sửa'
-            
-            window.scrollTo(0, 0); // Cuộn lên đầu trang
-            return;
-        }
-        
-        // Xóa
-        const deleteBtn = e.target.closest('.delete-user-btn');
-        if (deleteBtn) {
-            const username = deleteBtn.dataset.username;
-            if (username === 'admin') {
-                showToast('Không thể xóa tài khoản admin!', true);
-                return;
-            }
-            
-            showModal(
-                'Xác nhận xóa',
-                `Bạn có chắc muốn xóa người dùng @${username}? Hành động này sẽ xóa họ khỏi danh sách bạn bè của người khác.`,
-                'Xóa',
-                true
-            ).then(async (confirmed) => {
-                if (confirmed) {
-                    try {
-                        // Xóa tài liệu của user
-                        await deleteDoc(doc(db, usersCollectionPath, username));
-                        
-                        // Xóa khỏi bạn bè / yêu cầu của người khác
-                        const batch = writeBatch(db);
-                        Object.values(state.users).forEach(u => {
-                            let updated = false;
-                            const userRef = doc(db, usersCollectionPath, u.username);
-                            
-                            // Xóa khỏi ds bạn bè
-                            if (u.friends && u.friends[username]) {
-                                const newFriends = { ...u.friends };
-                                delete newFriends[username];
-                                batch.update(userRef, { friends: newFriends });
-                                updated = true;
-                            }
-                            
-                            // Xóa khỏi ds yêu cầu
-                            if (u.friendRequests && u.friendRequests.includes(username)) {
-                                const newRequests = u.friendRequests.filter(req => req !== username);
-                                batch.update(userRef, { friendRequests: newRequests });
-                                updated = true;
-                            }
-                        });
-                        await batch.commit();
-                        
-                        showToast(`Đã xóa @${username}.`, false);
-                        // Giao diện tự cập nhật
-                    } catch (e) {
-                        console.error("Lỗi xóa user:", e);
-                        showToast('Lỗi khi xóa user.', true);
-                    }
-                }
-            });
-        }
-    };
-
-    // Render Danh sách Thử Thách (Admin)
-    const renderChallengeListAdmin = () => {
-        challengeListTbody.innerHTML = '';
-        state.challenges.forEach(challenge => {
-            challengeListTbody.innerHTML += `
-                <tr class="bg-gray-800 border-b border-gray-700 hover:bg-gray-700">
-                    <td class="py-4 px-6">${challenge.question}</td>
-                    <td class="py-4 px-6">💰 ${challenge.reward}</td>
-                    <td class="py-4 px-6 space-x-2">
-                        <button type="button" data-id="${challenge.id}" class="edit-challenge-btn text-yellow-400 hover:text-yellow-300 font-medium">Sửa</button>
-                        <button type="button" data-id="${challenge.id}" class="delete-challenge-btn text-red-500 hover:text-red-400 font-medium">Xóa</button>
-                    </td>
-                </tr>
-            `;
-        });
-    };
-    
-    // Xóa form Thử Thách
-    const clearChallengeForm = () => {
-        challengeIdInput.value = '';
-        challengeQuestionInput.value = '';
-        challengeOp1Input.value = '';
-        challengeOp2Input.value = '';
-        challengeOp3Input.value = '';
-        challengeOp4Input.value = '';
-        challengeAnswerInput.value = '';
-        challengeRewardInput.value = '10';
-        challengeExplanationTextInput.value = '';
-        challengeExplanationImgInput.value = '';
-        state.editingChallengeId = null;
-    };
-
-    // Xử lý Form Thử Thách (Thêm/Sửa)
-    const handleChallengeFormSubmit = async (e) => {
-        e.preventDefault();
-        const id = state.editingChallengeId || `challenge_${Date.now()}`;
-        const challenge = {
-            id,
-            question: challengeQuestionInput.value,
-            options: [
-                challengeOp1Input.value,
-                challengeOp2Input.value,
-                challengeOp3Input.value,
-                challengeOp4Input.value,
-            ],
-            answer: parseInt(challengeAnswerInput.value),
-            reward: parseInt(challengeRewardInput.value),
-            explanationText: challengeExplanationTextInput.value.trim(),
-            explanationImg: challengeExplanationImgInput.value.trim()
         };
         
-        try {
-            await setDoc(doc(db, challengesCollectionPath, id), challenge);
+        // Xử lý xem Quà Đã Đổi
+        viewMyGiftsBtn.onclick = () => {
+            const user = state.currentUser;
+            let body = '';
+            if (user.inventory.length === 0) {
+                body = '<p>Bạn chưa sở hữu vật phẩm nào.</p>';
+            } else {
+                body = '<ul class="list-disc list-inside space-y-2">';
+                user.inventory.forEach(item => {
+                    body += `<li><span class="font-semibold">${item.name}</span> (Đổi ngày ${new Date(item.boughtAt).toLocaleDateString('vi-VN')})</li>`;
+                });
+                body += '</ul>';
+            }
+            showModal('Vật Phẩm Của Bạn', body);
+        };
+        
+        // Xử lý Cập nhật Profile
+        const handleProfileUpdate = (e) => {
+            e.preventDefault();
+            const user = state.currentUser;
+            const now = Date.now();
+            const COOLDOWN_DAYS = 15;
+            const COOLDOWN_MS = COOLDOWN_DAYS * 24 * 60 * 60 * 1000;
+            
+            const newName = profileDisplaynameInput.value.trim();
+            const newIcon = profileIconInput.value.trim();
+            const newPassword = profilePasswordInput.value.trim();
+            
+            let canUpdate = true;
+            
+            // Kiểm tra Tên
+            if (newName !== user.displayName) {
+                if (user.cooldowns.name && now < user.cooldowns.name) {
+                    showToast(`Bạn chỉ có thể đổi tên sau ${new Date(user.cooldowns.name).toLocaleDateString('vi-VN')}.`, true);
+                    canUpdate = false;
+                } else {
+                    user.displayName = newName;
+                    user.cooldowns.name = now + COOLDOWN_MS;
+                }
+            }
+            
+            // Kiểm tra Icon
+            if (newIcon !== user.icon) {
+                if (user.cooldowns.icon && now < user.cooldowns.icon) {
+                    showToast(`Bạn chỉ có thể đổi icon sau ${new Date(user.cooldowns.icon).toLocaleDateString('vi-VN')}.`, true);
+                    canUpdate = false;
+                } else {
+                    user.icon = newIcon;
+                    user.cooldowns.icon = now + COOLDOWN_MS;
+                }
+            }
+            
+            // Kiểm tra Mật khẩu
+            if (newPassword) {
+                if (user.cooldowns.password && now < user.cooldowns.password) {
+                    showToast(`Bạn chỉ có thể đổi mật khẩu sau ${new Date(user.cooldowns.password).toLocaleDateString('vi-VN')}.`, true);
+                    canUpdate = false;
+                } else {
+                    user.password = newPassword;
+                    user.cooldowns.password = now + COOLDOWN_MS;
+                }
+            }
+            
+            if (canUpdate) {
+                db.saveUsers(state.users);
+                showToast('Cập nhật thông tin thành công!');
+                // Cập nhật ngay lập tức
+                initPlayerView(user); 
+            }
+        };
+
+        // --- Admin Functions ---
+
+        // Render Danh sách User (Admin)
+        const renderUserList = () => {
+            userListTbody.innerHTML = '';
+            Object.values(state.users).forEach(user => {
+                userListTbody.innerHTML += `
+                    <tr class="bg-gray-800 border-b border-gray-700 hover:bg-gray-700">
+                        <td class="py-4 px-6"><div class="user-icon user-icon-sm">${user.icon || '👤'}</div></td>
+                        <td class="py-4 px-6 font-medium">${user.displayName || '(Chưa đặt)'}</td>
+                        <td class="py-4 px-6">${user.username}</td>
+                        <td class="py-4 px-6">💰 ${user.balance}</td>
+                        <td class="py-4 px-6 space-x-2">
+                            <button type="button" data-username="${user.username}" class="edit-user-btn text-yellow-400 hover:text-yellow-300 font-medium">Sửa</button>
+                            <button type="button" data-username="${user.username}" class="delete-user-btn text-red-500 hover:text-red-400 font-medium">Xóa</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        };
+        
+        // Xóa form User (Admin)
+        const clearUserForm = () => {
+            userUsernameInput.value = '';
+            userDisplaynameInput.value = '';
+            userIconInput.value = '';
+            userPasswordInput.value = '';
+            userBalanceInput.value = '0';
+            userUsernameInput.readOnly = false; // Kích hoạt lại
+            userForm.dataset.mode = 'add'; // Đặt chế độ 'thêm mới'
+        };
+        
+        // Xử lý Form User (Thêm/Sửa)
+        const handleUserFormSubmit = (e) => {
+            e.preventDefault();
+            
+            const username = userUsernameInput.value.trim();
+            const displayName = userDisplaynameInput.value.trim();
+            const icon = userIconInput.value.trim();
+            const password = userPasswordInput.value.trim();
+            const balance = parseInt(userBalanceInput.value) || 0;
+            
+            if (!username || !password) {
+                showToast('Tài khoản và mật khẩu là bắt buộc!', true);
+                return;
+            }
+
+            const now = Date.now();
+            const mode = userForm.dataset.mode || 'add';
+
+            if (mode === 'add') {
+                // Thêm Mới
+                if (state.users[username]) {
+                    showToast('Tài khoản này đã tồn tại!', true);
+                    return;
+                }
+                state.users[username] = {
+                    username,
+                    password,
+                    displayName: displayName || username,
+                    icon: icon || '👤',
+                    balance,
+                    inventory: [],
+                    answeredChallenges: [],
+                    friendRequests: [],
+                    friends: {},
+                    notifications: [],
+                    hasNewNotification: false,
+                    cooldowns: { name: null, icon: null, password: null },
+                    createdAt: now
+                };
+                showToast('Đã thêm người dùng mới!', false);
+            } else {
+                // Sửa
+                const user = state.users[username];
+                if (!user) {
+                     showToast('Lỗi: Không tìm thấy người dùng để sửa.', true);
+                     return;
+                }
+                user.displayName = displayName;
+                user.icon = icon;
+                user.password = password;
+                user.balance = balance;
+                showToast(`Đã cập nhật @${username}!`, false);
+            }
+
+            db.saveUsers(state.users);
+            renderUserList();
+            clearUserForm();
+        };
+
+        // Xử lý nút Sửa/Xóa User
+        const handleUserActions = (e) => {
+            // Sửa
+            const editBtn = e.target.closest('.edit-user-btn');
+            if (editBtn) {
+                const username = editBtn.dataset.username;
+                const user = state.users[username];
+                if (!user) return;
+                
+                userUsernameInput.value = user.username;
+                userDisplaynameInput.value = user.displayName || '';
+                userIconInput.value = user.icon || '';
+                userPasswordInput.value = user.password;
+                userBalanceInput.value = user.balance;
+                
+                userUsernameInput.readOnly = true; // Khóa username khi sửa
+                userForm.dataset.mode = 'edit'; // Đặt chế độ 'sửa'
+                
+                window.scrollTo(0, 0); // Cuộn lên đầu trang
+                return;
+            }
+            
+            // Xóa
+            const deleteBtn = e.target.closest('.delete-user-btn');
+            if (deleteBtn) {
+                const username = deleteBtn.dataset.username;
+                if (username === 'admin') {
+                    showToast('Không thể xóa tài khoản admin!', true);
+                    return;
+                }
+                
+                showModal(
+                    'Xác nhận xóa',
+                    `Bạn có chắc muốn xóa người dùng @${username}? Hành động này không thể hoàn tác.`,
+                    'Xóa',
+                    true
+                ).then(confirmed => {
+                    if (confirmed) {
+                        delete state.users[username];
+                        // Cũng phải xóa khỏi danh sách bạn bè của người khác
+                        Object.values(state.users).forEach(u => {
+                            delete u.friends[username];
+                            u.friendRequests = u.friendRequests.filter(req => req !== username);
+                        });
+                        
+                        db.saveUsers(state.users);
+                        renderUserList();
+                        showToast(`Đã xóa @${username}.`, false);
+                    }
+                });
+            }
+        };
+
+        // Render Danh sách Thử Thách (Admin)
+        const renderChallengeListAdmin = () => {
+            challengeListTbody.innerHTML = '';
+            state.challenges.forEach(challenge => {
+                challengeListTbody.innerHTML += `
+                    <tr class="bg-gray-800 border-b border-gray-700 hover:bg-gray-700">
+                        <td class="py-4 px-6">${challenge.question}</td>
+                        <td class="py-4 px-6">💰 ${challenge.reward}</td>
+                        <td class="py-4 px-6 space-x-2">
+                            <button type="button" data-id="${challenge.id}" class="edit-challenge-btn text-yellow-400 hover:text-yellow-300 font-medium">Sửa</button>
+                            <button type="button" data-id="${challenge.id}" class="delete-challenge-btn text-red-500 hover:text-red-400 font-medium">Xóa</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        };
+        
+        // Xóa form Thử Thách
+        const clearChallengeForm = () => {
+            challengeIdInput.value = '';
+            challengeQuestionInput.value = '';
+            challengeOp1Input.value = '';
+            challengeOp2Input.value = '';
+            challengeOp3Input.value = '';
+            challengeOp4Input.value = '';
+            challengeAnswerInput.value = '';
+            challengeRewardInput.value = '10';
+            challengeExplanationTextInput.value = '';
+            challengeExplanationImgInput.value = '';
+            state.editingChallengeId = null;
+        };
+
+        // Xử lý Form Thử Thách (Thêm/Sửa)
+        const handleChallengeFormSubmit = (e) => {
+            e.preventDefault();
+            const id = state.editingChallengeId || `challenge_${Date.now()}`;
+            const challenge = {
+                id,
+                question: challengeQuestionInput.value,
+                options: [
+                    challengeOp1Input.value,
+                    challengeOp2Input.value,
+                    challengeOp3Input.value,
+                    challengeOp4Input.value,
+                ],
+                answer: parseInt(challengeAnswerInput.value),
+                reward: parseInt(challengeRewardInput.value),
+                explanationText: challengeExplanationTextInput.value.trim(),
+                explanationImg: challengeExplanationImgInput.value.trim()
+            };
+            
             if (state.editingChallengeId) {
+                // Sửa
+                const index = state.challenges.findIndex(c => c.id === id);
+                state.challenges[index] = challenge;
                 showToast('Đã cập nhật thử thách!', false);
             } else {
+                // Thêm
+                state.challenges.push(challenge);
                 showToast('Đã thêm thử thách mới!', false);
             }
-        } catch (e) {
-            console.error("Lỗi lưu thử thách:", e);
-            showToast('Lỗi khi lưu thử thách.', true);
-        }
-        
-        // Giao diện tự cập nhật
-        clearChallengeForm();
-    };
-
-    // Xử lý Sửa/Xóa Thử Thách
-    const handleChallengeActions = (e) => {
-        // Sửa
-        const editBtn = e.target.closest('.edit-challenge-btn');
-        if (editBtn) {
-            const id = editBtn.dataset.id;
-            const challenge = state.challenges.find(c => c.id === id);
-            if (!challenge) return;
             
-            state.editingChallengeId = id;
-            challengeQuestionInput.value = challenge.question;
-            challengeOp1Input.value = challenge.options[0];
-            challengeOp2Input.value = challenge.options[1];
-            challengeOp3Input.value = challenge.options[2];
-            challengeOp4Input.value = challenge.options[3];
-            challengeAnswerInput.value = challenge.answer;
-            challengeRewardInput.value = challenge.reward;
-            challengeExplanationTextInput.value = challenge.explanationText || '';
-            challengeExplanationImgInput.value = challenge.explanationImg || '';
-            
-            window.scrollTo(0, 0);
-            return;
-        }
-        
-        // Xóa
-        const deleteBtn = e.target.closest('.delete-challenge-btn');
-        if (deleteBtn) {
-            const id = deleteBtn.dataset.id;
-            showModal('Xác nhận xóa', 'Bạn có chắc muốn xóa thử thách này?', 'Xóa', true)
-            .then(async (confirmed) => {
-                if (confirmed) {
-                    try {
-                        await deleteDoc(doc(db, challengesCollectionPath, id));
-                        showToast('Đã xóa thử thách.', false);
-                    } catch (e) {
-                        console.error("Lỗi xóa thử thách:", e);
-                        showToast('Lỗi khi xóa thử thách.', true);
-                    }
-                }
-            });
-        }
-    };
-
-    // Render Danh sách Cửa Hàng (Admin)
-    const renderShopListAdmin = () => {
-        shopListTbody.innerHTML = '';
-        state.shopItems.forEach(item => {
-            const finalPrice = item.sale > 0 ? Math.round(item.price * (1 - item.sale / 100)) : item.price;
-            shopListTbody.innerHTML += `
-                <tr class="bg-gray-800 border-b border-gray-700 hover:bg-gray-700">
-                    <td class="py-4 px-6">${item.name}</td>
-                    <td class="py-4 px-6">💰 ${item.price}</td>
-                    <td class="py-4 px-6">${item.sale || 0}%</td>
-                    <td class="py-4 px-6">💰 ${finalPrice}</td>
-                    <td class="py-4 px-6 space-x-2">
-                        <button type="button" data-id="${item.id}" class="edit-shop-btn text-yellow-400 hover:text-yellow-300 font-medium">Sửa</button>
-                        <button type="button" data-id="${item.id}" class="delete-shop-btn text-red-500 hover:text-red-400 font-medium">Xóa</button>
-                    </td>
-                </tr>
-            `;
-        });
-    };
-
-    // Xóa form Cửa Hàng
-    const clearShopForm = () => {
-        state.editingShopItemId = null;
-        shopItemIdInput.value = '';
-        shopItemNameInput.value = '';
-        shopItemPriceInput.value = '100';
-        shopItemSaleInput.value = '0';
-    };
-
-    // Xử lý Form Cửa Hàng (Thêm/Sửa)
-    const handleShopFormSubmit = async (e) => {
-        e.preventDefault();
-        const id = state.editingShopItemId || `item_${Date.now()}`;
-        const item = {
-            id,
-            name: shopItemNameInput.value,
-            price: parseInt(shopItemPriceInput.value),
-            sale: parseInt(shopItemSaleInput.value) || 0
+            db.saveChallenges(state.challenges);
+            renderChallengeListAdmin();
+            clearChallengeForm();
         };
 
-        try {
-            await setDoc(doc(db, shopCollectionPath, id), item);
+        // Xử lý Sửa/Xóa Thử Thách
+        const handleChallengeActions = (e) => {
+            // Sửa
+            const editBtn = e.target.closest('.edit-challenge-btn');
+            if (editBtn) {
+                const id = editBtn.dataset.id;
+                const challenge = state.challenges.find(c => c.id === id);
+                if (!challenge) return;
+                
+                state.editingChallengeId = id;
+                challengeQuestionInput.value = challenge.question;
+                challengeOp1Input.value = challenge.options[0];
+                challengeOp2Input.value = challenge.options[1];
+                challengeOp3Input.value = challenge.options[2];
+                challengeOp4Input.value = challenge.options[3];
+                challengeAnswerInput.value = challenge.answer;
+                challengeRewardInput.value = challenge.reward;
+                challengeExplanationTextInput.value = challenge.explanationText || '';
+                challengeExplanationImgInput.value = challenge.explanationImg || '';
+                
+                window.scrollTo(0, 0);
+                return;
+            }
+            
+            // Xóa
+            const deleteBtn = e.target.closest('.delete-challenge-btn');
+            if (deleteBtn) {
+                const id = deleteBtn.dataset.id;
+                showModal('Xác nhận xóa', 'Bạn có chắc muốn xóa thử thách này?', 'Xóa', true)
+                .then(confirmed => {
+                    if (confirmed) {
+                        state.challenges = state.challenges.filter(c => c.id !== id);
+                        db.saveChallenges(state.challenges);
+                        renderChallengeListAdmin();
+                        showToast('Đã xóa thử thách.', false);
+                    }
+                });
+            }
+        };
+
+        // Render Danh sách Cửa Hàng (Admin)
+        const renderShopListAdmin = () => {
+            shopListTbody.innerHTML = '';
+            state.shopItems.forEach(item => {
+                const finalPrice = item.sale > 0 ? Math.round(item.price * (1 - item.sale / 100)) : item.price;
+                shopListTbody.innerHTML += `
+                    <tr class="bg-gray-800 border-b border-gray-700 hover:bg-gray-700">
+                        <td class="py-4 px-6">${item.name}</td>
+                        <td class="py-4 px-6">💰 ${item.price}</td>
+                        <td class="py-4 px-6">${item.sale || 0}%</td>
+                        <td class="py-4 px-6">💰 ${finalPrice}</td>
+                        <td class="py-4 px-6 space-x-2">
+                            <button type="button" data-id="${item.id}" class="edit-shop-btn text-yellow-400 hover:text-yellow-300 font-medium">Sửa</button>
+                            <button type="button" data-id="${item.id}" class="delete-shop-btn text-red-500 hover:text-red-400 font-medium">Xóa</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        };
+
+        // Xóa form Cửa Hàng
+        const clearShopForm = () => {
+            state.editingShopItemId = null;
+            shopItemIdInput.value = '';
+            shopItemNameInput.value = '';
+            shopItemPriceInput.value = '100';
+            shopItemSaleInput.value = '0';
+        };
+
+        // Xử lý Form Cửa Hàng (Thêm/Sửa)
+        const handleShopFormSubmit = (e) => {
+            e.preventDefault();
+            const id = state.editingShopItemId || `item_${Date.now()}`;
+            const item = {
+                id,
+                name: shopItemNameInput.value,
+                price: parseInt(shopItemPriceInput.value),
+                sale: parseInt(shopItemSaleInput.value) || 0
+            };
+
             if (state.editingShopItemId) {
+                // Sửa
+                const index = state.shopItems.findIndex(i => i.id === id);
+                state.shopItems[index] = item;
                 showToast('Đã cập nhật vật phẩm!', false);
             } else {
+                // Thêm
+                state.shopItems.push(item);
                 showToast('Đã thêm vật phẩm mới!', false);
             }
-        } catch (e) {
-            console.error("Lỗi lưu vật phẩm:", e);
-            showToast('Lỗi khi lưu vật phẩm.', true);
-        }
 
-        clearShopForm();
-    };
+            db.saveShopItems(state.shopItems);
+            renderShopListAdmin();
+            clearShopForm();
+        };
 
-    // Xử lý Sửa/Xóa Cửa Hàng
-    const handleShopActions = (e) => {
-        // Sửa
-        const editBtn = e.target.closest('.edit-shop-btn');
-        if (editBtn) {
-            const id = editBtn.dataset.id;
-            const item = state.shopItems.find(i => i.id === id);
-            if (!item) return;
+        // Xử lý Sửa/Xóa Cửa Hàng
+        const handleShopActions = (e) => {
+            // Sửa
+            const editBtn = e.target.closest('.edit-shop-btn');
+            if (editBtn) {
+                const id = editBtn.dataset.id;
+                const item = state.shopItems.find(i => i.id === id);
+                if (!item) return;
 
-            state.editingShopItemId = id;
-            shopItemNameInput.value = item.name;
-            shopItemPriceInput.value = item.price;
-            shopItemSaleInput.value = item.sale || 0;
-            
-            window.scrollTo(0, 0);
-            return;
-        }
+                state.editingShopItemId = id;
+                shopItemNameInput.value = item.name;
+                shopItemPriceInput.value = item.price;
+                shopItemSaleInput.value = item.sale || 0;
+                
+                window.scrollTo(0, 0);
+                return;
+            }
 
-        // Xóa
-        const deleteBtn = e.target.closest('.delete-shop-btn');
-        if (deleteBtn) {
-            const id = deleteBtn.dataset.id;
-            showModal('Xác nhận xóa', 'Bạn có chắc muốn xóa vật phẩm này? (Kho đồ của user sẽ không bị ảnh hưởng)', 'Xóa', true)
-            .then(async (confirmed) => {
-                if (confirmed) {
-                    try {
-                        await deleteDoc(doc(db, shopCollectionPath, id));
+            // Xóa
+            const deleteBtn = e.target.closest('.delete-shop-btn');
+            if (deleteBtn) {
+                const id = deleteBtn.dataset.id;
+                showModal('Xác nhận xóa', 'Bạn có chắc muốn xóa vật phẩm này? (Kho đồ của user sẽ không bị ảnh hưởng)', 'Xóa', true)
+                .then(confirmed => {
+                    if (confirmed) {
+                        state.shopItems = state.shopItems.filter(i => i.id !== id);
+                        db.saveShopItems(state.shopItems);
+                        renderShopListAdmin();
                         showToast('Đã xóa vật phẩm.', false);
-                    } catch (e) {
-                        console.error("Lỗi xóa vật phẩm:", e);
-                        showToast('Lỗi khi xóa vật phẩm.', true);
                     }
-                }
-            });
-        }
-    };
-    
-    // Xử lý Gửi Thông Báo (Admin)
-    const handleNotificationSubmit = async (e) => {
-        e.preventDefault();
-        const message = notificationMessageInput.value.trim();
-        if (!message) return;
-        
-        const notification = {
-            id: `notif_${Date.now()}`,
-            timestamp: Date.now(), // Dùng time client cho thông báo
-            message: message,
-            read: false // (Không dùng, chỉ để tương thích)
+                });
+            }
         };
         
-        try {
-            const batch = writeBatch(db);
-            Object.keys(state.users).forEach(username => {
-                const userRef = doc(db, usersCollectionPath, username);
-                const user = state.users[username];
-                const newNotifications = [notification, ...(user.notifications || [])].slice(0, 20); // Giới hạn 20 thông báo
-                
-                batch.update(userRef, {
-                    notifications: newNotifications,
-                    hasNewNotification: true
-                });
+        // Xử lý Gửi Thông Báo (Admin)
+        const handleNotificationSubmit = (e) => {
+            e.preventDefault();
+            const message = notificationMessageInput.value.trim();
+            if (!message) return;
+            
+            const notification = {
+                id: `notif_${Date.now()}`,
+                timestamp: Date.now(),
+                message: message,
+                read: false
+            };
+            
+            // Gửi cho tất cả user
+            Object.values(state.users).forEach(user => {
+                user.notifications.push(notification);
+                user.hasNewNotification = true;
             });
-            await batch.commit();
+            
+            db.saveUsers(state.users);
             showToast('Đã gửi thông báo cho tất cả người dùng!', false);
             notificationMessageInput.value = '';
-        } catch (e) {
-            console.error("Lỗi gửi thông báo:", e);
-            showToast('Lỗi khi gửi thông báo.', true);
-        }
-    };
+        };
 
-    // Render Lịch Sử Hoạt Động (Admin)
-    const renderActivityLog = () => {
-        activityLogList.innerHTML = '';
-        if (state.activityLog.length === 0) {
-            activityLogList.innerHTML = '<p class="text-gray-400 text-center">Chưa có hoạt động nào.</p>';
-            return;
-        }
-        
-        state.activityLog.forEach(log => {
-            const date = log.timestamp ? log.timestamp.toDate().toLocaleString('vi-VN') : 'N/A';
-            const colorClass = log.type === 'purchase' ? 'text-green-400' : 'text-blue-400';
+        // Render Lịch Sử Hoạt Động (Admin)
+        const renderActivityLog = () => {
+            activityLogList.innerHTML = '';
+            if (state.activityLog.length === 0) {
+                activityLogList.innerHTML = '<p class="text-gray-400 text-center">Chưa có hoạt động nào.</p>';
+                return;
+            }
             
-            activityLogList.innerHTML += `
-                <div class="bg-gray-700 p-4 rounded-lg animate-slide-in">
-                    <p class="text-sm">
-                        <span class="font-bold ${colorClass}">@${log.user}</span>
-                        <span>${log.message}</span>
-                    </p>
-                    <p class="text-xs text-gray-400 mt-1">${date}</p>
-                </div>
-            `;
-        });
-    };
+            state.activityLog.forEach(log => {
+                const date = new Date(log.timestamp).toLocaleString('vi-VN');
+                const colorClass = log.type === 'purchase' ? 'text-green-400' : 'text-blue-400';
+                
+                activityLogList.innerHTML += `
+                    <div class="bg-gray-700 p-4 rounded-lg animate-slide-in">
+                        <p class="text-sm">
+                            <span class="font-bold ${colorClass}">@${log.user}</span>
+                            <span>${log.message}</span>
+                        </p>
+                        <p class="text-xs text-gray-400 mt-1">${date}</p>
+                    </div>
+                `;
+            });
+        };
 
-    // Xử lý các nút Xóa Lịch Sử
-    const handleLogClearing = (e) => {
-        // Xóa Toàn Bộ Lịch Sử
-        if (e.target === clearActivityLogBtn) {
-            showModal('Xác nhận xóa', 'Bạn có chắc muốn xóa TOÀN BỘ lịch sử hoạt động?', 'Xóa', true)
-            .then(async (confirmed) => {
-                if (confirmed) {
-                    try {
-                        const batch = writeBatch(db);
-                        const logSnapshot = await getDocs(collection(db, activityLogCollectionPath));
-                        logSnapshot.forEach(doc => batch.delete(doc.ref));
-                        await batch.commit();
+        // Xử lý các nút Xóa Lịch Sử
+        const handleLogClearing = (e) => {
+            // Xóa Toàn Bộ Lịch Sử
+            if (e.target === clearActivityLogBtn) {
+                showModal('Xác nhận xóa', 'Bạn có chắc muốn xóa TOÀN BỘ lịch sử hoạt động?', 'Xóa', true)
+                .then(confirmed => {
+                    if (confirmed) {
+                        state.activityLog = [];
+                        db.saveActivityLog([]);
+                        renderActivityLog();
                         showToast('Đã xóa toàn bộ lịch sử.', false);
-                    } catch (e) {
-                        console.error("Lỗi xóa log:", e);
-                        showToast('Lỗi khi xóa log.', true);
                     }
-                }
-            });
-        }
-        
-        // Xóa Lịch Sử Đổi Quà (VÀ XÓA KHO ĐỒ USER)
-        if (e.target === clearPurchaseLogBtn) {
-            showModal('Xác nhận xóa', 'Bạn có chắc muốn xóa lịch sử ĐỔI QUÀ? (Việc này sẽ XÓA SẠCH KHO ĐỒ của tất cả user)', 'Xóa', true)
-            .then(async (confirmed) => {
-                if (confirmed) {
-                    try {
-                        const batch = writeBatch(db);
+                });
+            }
+            
+            // Xóa Lịch Sử Đổi Quà (VÀ XÓA KHO ĐỒ USER)
+            if (e.target === clearPurchaseLogBtn) {
+                showModal('Xác nhận xóa', 'Bạn có chắc muốn xóa lịch sử ĐỔI QUÀ? (Việc này sẽ XÓA SẠCH KHO ĐỒ của tất cả user)', 'Xóa', true)
+                .then(confirmed => {
+                    if (confirmed) {
+                        // Xóa log
+                        state.activityLog = state.activityLog.filter(log => log.type !== 'purchase');
+                        db.saveActivityLog(state.activityLog);
+                        renderActivityLog();
                         
-                        // 1. Xóa log 'purchase'
-                        const logSnapshot = await getDocs(query(collection(db, activityLogCollectionPath), where('type', '==', 'purchase')));
-                        logSnapshot.forEach(doc => batch.delete(doc.ref));
-                        
-                        // 2. Xóa kho đồ user
-                        Object.keys(state.users).forEach(username => {
-                            const userRef = doc(db, usersCollectionPath, username);
-                            batch.update(userRef, { inventory: [] });
+                        // Xóa kho đồ
+                        Object.values(state.users).forEach(user => {
+                            user.inventory = [];
                         });
+                        db.saveUsers(state.users);
                         
-                        await batch.commit();
                         showToast('Đã xóa lịch sử đổi quà và kho đồ của user.', false);
-                    } catch(e) {
-                        console.error("Lỗi xóa quà:", e);
-                        showToast('Lỗi khi xóa lịch sử quà.', true);
                     }
-                }
-            });
-        }
-        
-        // Xóa Hết Thông Báo (User)
-        if (e.target === clearUserNotificationsBtn) {
-            showModal('Xác nhận xóa', 'Bạn có chắc muốn xóa tất cả thông báo (chuông 🔔) của tất cả người dùng?', 'Xóa', true)
-            .then(async (confirmed) => {
-                if (confirmed) {
-                    try {
-                        const batch = writeBatch(db);
-                        Object.keys(state.users).forEach(username => {
-                            const userRef = doc(db, usersCollectionPath, username);
-                            batch.update(userRef, {
-                                notifications: [],
-                                hasNewNotification: false
-                            });
+                });
+            }
+            
+            // Xóa Hết Thông Báo (User)
+            if (e.target === clearUserNotificationsBtn) {
+                showModal('Xác nhận xóa', 'Bạn có chắc muốn xóa tất cả thông báo (chuông 🔔) của tất cả người dùng?', 'Xóa', true)
+                .then(confirmed => {
+                    if (confirmed) {
+                        Object.values(state.users).forEach(user => {
+                            user.notifications = [];
+                            user.hasNewNotification = false;
                         });
-                        await batch.commit();
+                        db.saveUsers(state.users);
                         showToast('Đã xóa hết thông báo của người dùng.', false);
-                    } catch (e) {
-                        console.error("Lỗi xóa thông báo:", e);
-                        showToast('Lỗi khi xóa thông báo.', true);
                     }
-                }
-            });
-        }
-    };
-
-    // --- Navigation Handlers ---
-
-    // Chuyển tab Player
-    const switchPlayerTab = (tabName) => {
-        // Ẩn tất cả nội dung
-        Object.values(playerTabs).forEach(tab => tab.classList.add('hidden'));
-        // Ẩn Giao diện chi tiết
-        mutualStreakDetailView.classList.add('hidden');
-        friendListView.classList.remove('hidden'); // Reset về danh sách
-        
-        // Hiện nội dung tab được chọn
-        if (playerTabs[tabName]) {
-            playerTabs[tabName].classList.remove('hidden');
-        } else if (tabName === 'friends') {
-            playerTabs.friends.classList.remove('hidden');
-        }
-
-        // Đổi style nút
-        playerNav.querySelectorAll('.player-tab').forEach(btn => {
-            if (btn.dataset.tab === tabName) {
-                btn.classList.add('bg-blue-600', 'text-white');
-                btn.classList.remove('text-gray-300', 'hover:bg-gray-700');
-            } else {
-                btn.classList.remove('bg-blue-600', 'text-white');
-                btn.classList.add('text-gray-300', 'hover:bg-gray-700');
-            }
-        });
-        
-        // Render lại khi chuyển tab (để cập nhật)
-        // (Không cần thiết lắm vì có onSnapshot, nhưng để cho chắc)
-        if (tabName === 'challenges') renderChallengesPlayer(state.currentUser);
-        if (tabName === 'shop') renderShopPlayer(state.currentUser);
-        if (tabName === 'friends') renderFriends(state.currentUser);
-    };
-    
-    // Chuyển tab Admin
-    const switchAdminTab = (tabName) => {
-        Object.values(adminTabs).forEach(tab => tab.classList.add('hidden'));
-        adminTabs[tabName].classList.remove('hidden');
-
-        adminNav.querySelectorAll('.admin-tab').forEach(btn => {
-            if (btn.dataset.tab === tabName) {
-                btn.classList.add('bg-blue-600', 'text-white');
-                btn.classList.remove('text-gray-300', 'hover:bg-gray-700');
-            } else {
-                btn.classList.remove('bg-blue-600', 'text-white');
-                btn.classList.add('text-gray-300', 'hover:bg-gray-700');
-            }
-        });
-        
-        // Render khi chuyển (không cần vì có onSnapshot)
-        // if (tabName === 'userMgmt') renderUserList();
-        // if (tabName === 'challengeMgmt') renderChallengeListAdmin();
-        // if (tabName === 'shopMgmt') renderShopListAdmin();
-        // if (tabName === 'activityLog') renderActivityLog();
-    };
-    
-    // Gán sự kiện click cho nav
-    playerNav.addEventListener('click', (e) => {
-        const tabBtn = e.target.closest('.player-tab');
-        if (tabBtn) switchPlayerTab(tabBtn.dataset.tab);
-    });
-    adminNav.addEventListener('click', (e) => {
-        const tabBtn = e.target.closest('.admin-tab');
-        if (tabBtn) switchAdminTab(tabBtn.dataset.tab);
-    });
-
-    // --- Initialization ---
-
-    // Khởi tạo trang Player
-    const initPlayerView = (user) => {
-        state.currentUser = user;
-        
-        // Cập nhật Header
-        renderPlayerHeader(user);
-        
-        // Cập nhật Profile Tab
-        profileDisplaynameInput.value = user.displayName || user.username;
-        profileIconInput.value = user.icon || '👤';
-        profileIconDisplay.textContent = user.icon || '👤';
-        profilePasswordInput.value = ''; // Luôn xóa trống
-        
-        // Render Cooldowns
-        const now = Date.now();
-        const renderCooldown = (elem, cdTimestamp) => {
-            const cd = cdTimestamp ? cdTimestamp.toMillis() : 0;
-            if (cd && now < cd) {
-                const date = new Date(cd).toLocaleDateString('vi-VN');
-                elem.textContent = `Có thể đổi lại sau: ${date}`;
-            } else {
-                elem.textContent = '';
+                });
             }
         };
-        renderCooldown(cooldownName, user.cooldowns.name);
-        renderCooldown(cooldownIcon, user.cooldowns.icon);
-        renderCooldown(cooldownPassword, user.cooldowns.password);
 
-        // Mở tab đầu tiên
-        switchPlayerTab('friends');
-        
-        showView('player');
-    };
+        // --- Navigation Handlers ---
 
-    // Khởi tạo trang Admin
-    const initAdminView = () => {
-        switchAdminTab('userMgmt');
-        showView('admin');
-    };
-
-    // Xử lý Đăng Nhập
-    const handleLogin = (e) => {
-        if (e) e.preventDefault(); // Cho phép gọi chay
-        const username = usernameInput.value;
-        const password = passwordInput.value;
-
-        // Admin Login (Hardcoded)
-        if (username === 'admin' && password === '123') {
-            if (rememberMeInput.checked) {
-                localDb.saveRememberedUser({ username, password });
-            } else {
-                localDb.clearRememberedUser();
-            }
-            initAdminView();
-            return;
-        }
-
-        // Player Login (Kiểm tra 'state' đã tải từ Firebase)
-        const user = state.users[username];
-        if (user && user.password === password) {
-            if (rememberMeInput.checked) {
-                localDb.saveRememberedUser({ username, password });
-            } else {
-                localDb.clearRememberedUser();
-            }
-            initPlayerView(user);
-        } else {
-            showToast('Tài khoản hoặc mật khẩu không đúng!', true);
-        }
-    };
-
-    // Xử lý Đăng Xuất
-    const handleLogout = () => {
-        state.currentUser = null;
-        showView('login');
-        // Điền lại nếu có "Nhớ Mật Khẩu"
-        const rememberedUser = localDb.getRememberedUser();
-        if (rememberedUser) {
-            usernameInput.value = rememberedUser.username;
-            passwordInput.value = rememberedUser.password;
-            rememberMeInput.checked = true;
-        } else {
-            usernameInput.value = '';
-            passwordInput.value = '';
-            rememberMeInput.checked = false;
-        }
-    };
-
-    // --- Main Init Function ---
-    const init = async () => {
-        try {
-            // Lấy config từ biến toàn cục
-            if (typeof __app_id === 'undefined' || typeof __firebase_config === 'undefined') {
-                throw new Error("Không tìm thấy cấu hình máy chủ.");
-            }
-            appId = __app_id;
-            const firebaseConfig = JSON.parse(__firebase_config);
-
-            // Khởi tạo Firebase
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
+        // Chuyển tab Player
+        const switchPlayerTab = (tabName) => {
+            // Ẩn tất cả nội dung
+            Object.values(playerTabs).forEach(tab => tab.classList.add('hidden'));
+            // Ẩn Giao diện chi tiết
+            mutualStreakDetailView.classList.add('hidden');
+            friendListView.classList.remove('hidden'); // Reset về danh sách
             
-            // Đăng nhập Firebase
-            loadingText.textContent = 'Đang xác thực...';
-            if (typeof __initial_auth_token !== 'undefined') {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth); // Fallback
+            // Hiện nội dung tab được chọn
+            if (playerTabs[tabName]) {
+                playerTabs[tabName].classList.remove('hidden');
+            } else if (tabName === 'friends') {
+                playerTabs.friends.classList.remove('hidden');
             }
+
+            // Đổi style nút
+            playerNav.querySelectorAll('.player-tab').forEach(btn => {
+                if (btn.dataset.tab === tabName) {
+                    btn.classList.add('bg-blue-600', 'text-white');
+                    btn.classList.remove('text-gray-300', 'hover:bg-gray-700');
+                } else {
+                    btn.classList.remove('bg-blue-600', 'text-white');
+                    btn.classList.add('text-gray-300', 'hover:bg-gray-700');
+                }
+            });
             
-            loadingText.textContent = 'Đang tải dữ liệu...';
-            loadAllDataFromFirestore();
+            // Render lại khi chuyển tab (để cập nhật)
+            if (tabName === 'challenges') renderChallengesPlayer(state.currentUser);
+            if (tabName === 'shop') renderShopPlayer(state.currentUser);
+            if (tabName === 'friends') renderFriends(state.currentUser);
+        };
+        
+        // Chuyển tab Admin
+        const switchAdminTab = (tabName) => {
+            Object.values(adminTabs).forEach(tab => tab.classList.add('hidden'));
+            adminTabs[tabName].classList.remove('hidden');
 
-        } catch (error) {
-            console.error("Lỗi khởi tạo:", error);
-            loadingText.textContent = `Không thể kết nối đến máy chủ. Vui lòng tải lại trang. (Lỗi: ${error.message})`;
-            loadingText.classList.add('text-red-500');
-            views.loading.classList.remove('hidden');
-            views.login.classList.add('hidden');
-        }
+            adminNav.querySelectorAll('.admin-tab').forEach(btn => {
+                if (btn.dataset.tab === tabName) {
+                    btn.classList.add('bg-blue-600', 'text-white');
+                    btn.classList.remove('text-gray-300', 'hover:bg-gray-700');
+                } else {
+                    btn.classList.remove('bg-blue-600', 'text-white');
+                    btn.classList.add('text-gray-300', 'hover:bg-gray-700');
+                }
+            });
+            
+            // Render khi chuyển
+            if (tabName === 'userMgmt') renderUserList();
+            if (tabName === 'challengeMgmt') renderChallengeListAdmin();
+            if (tabName === 'shopMgmt') renderShopListAdmin();
+            if (tabName === 'activityLog') renderActivityLog();
+        };
         
-        // --- Gán sự kiện (sau khi DOM load) ---
-        
-        // Gán sự kiện cho form THÊM BẠN (submit)
-        addFriendForm.addEventListener('submit', handleAddFriendSubmit);
-        
-        // Gán sự kiện cho DANH SÁCH (click)
-        const friendTabContainer = document.getElementById('friends-tab');
-        friendTabContainer.addEventListener('click', handleFriendListClick);
-        
-        // Gán sự kiện cho nút Rep Chuỗi Chung
-        repMutualStreakBtn.addEventListener('click', handleRepMutualStreak);
-
-        // Gán sự kiện chung cho Thử Thách (event delegation)
-        challengeListPlayer.addEventListener('click', (e) => {
-            handleChallengeAnswer(e);
-            handleShowExplanation(e);
+        // Gán sự kiện click cho nav
+        playerNav.addEventListener('click', (e) => {
+            const tabBtn = e.target.closest('.player-tab');
+            if (tabBtn) switchPlayerTab(tabBtn.dataset.tab);
         });
-        
-        // Gán sự kiện cho Cửa Hàng
-        shopListPlayer.addEventListener('click', handleBuyItem);
+        adminNav.addEventListener('click', (e) => {
+            const tabBtn = e.target.closest('.admin-tab');
+            if (tabBtn) switchAdminTab(tabBtn.dataset.tab);
+        });
 
-        // Gán sự kiện Đăng nhập/Đăng xuất
-        loginForm.addEventListener('submit', handleLogin);
-        logoutBtnPlayer.addEventListener('click', handleLogout);
-        logoutBtnAdmin.addEventListener('click', handleLogout);
-        
-        // Gán sự kiện cho Profile
-        profileForm.addEventListener('submit', handleProfileUpdate);
-        
-        // Gán sự kiện Admin: User
-        userForm.addEventListener('submit', handleUserFormSubmit);
-        clearUserFormBtn.addEventListener('click', clearUserForm);
-        userListTbody.addEventListener('click', handleUserActions);
-        
-        // Gán sự kiện Admin: Challenge
-        challengeForm.addEventListener('submit', handleChallengeFormSubmit);
-        clearChallengeFormBtn.addEventListener('click', clearChallengeForm);
-        challengeListTbody.addEventListener('click', handleChallengeActions);
+        // --- Initialization ---
 
-        // Gán sự kiện Admin: Shop
-        shopForm.addEventListener('submit', handleShopFormSubmit);
-        clearShopFormBtn.addEventListener('click', clearShopForm);
-        shopListTbody.addEventListener('click', handleShopActions);
-        
-        // Gán sự kiện Admin: Notify
-        notificationForm.addEventListener('submit', handleNotificationSubmit);
-        
-        // Gán sự kiện Admin: Activity Log
-        clearActivityLogBtn.addEventListener('click', handleLogClearing);
-        clearPurchaseLogBtn.addEventListener('click', handleLogClearing);
-        clearUserNotificationsBtn.addEventListener('click', handleLogClearing);
-        
-        // Render bộ chọn Emoji
-        renderEmojiPicker(profileEmojiList, profileIconInput);
-        renderEmojiPicker(adminEmojiList, userIconInput);
-        
-        // Hiển thị pop-up nhắc nhở sau 1 giây (nếu ở trang login)
-        setTimeout(() => {
-            if (views.login.classList.contains('hidden') === false) {
-                showToast('Nhớ hãy lưu mật khẩu của bạn nhé!', false);
+        // Khởi tạo trang Player
+        const initPlayerView = (user) => {
+            state.currentUser = user;
+            
+            // Cập nhật Header
+            playerUsername.textContent = user.username;
+            playerDisplayname.textContent = user.displayName || user.username;
+            playerHeaderIcon.textContent = user.icon || '👤';
+            playerBalance.textContent = user.balance;
+            
+            // Cập nhật chuông thông báo
+            if (user.hasNewNotification) {
+                notificationBell.classList.add('has-new');
+            } else {
+                notificationBell.classList.remove('has-new');
             }
-        }, 1500);
-    };
+            
+            // Cập nhật Profile Tab
+            profileDisplaynameInput.value = user.displayName || user.username;
+            profileIconInput.value = user.icon || '👤';
+            profileIconDisplay.textContent = user.icon || '👤';
+            profilePasswordInput.value = ''; // Luôn xóa trống
+            
+            // Render Cooldowns
+            const now = Date.now();
+            const renderCooldown = (elem, cdTimestamp) => {
+                if (cdTimestamp && now < cdTimestamp) {
+                    const date = new Date(cdTimestamp).toLocaleDateString('vi-VN');
+                    elem.textContent = `Có thể đổi lại sau: ${date}`;
+                } else {
+                    elem.textContent = '';
+                }
+            };
+            renderCooldown(cooldownName, user.cooldowns.name);
+            renderCooldown(cooldownIcon, user.cooldowns.icon);
+            renderCooldown(cooldownPassword, user.cooldowns.password);
 
-    // Chạy ứng dụng
-    init();
+            // Mở tab đầu tiên
+            switchPlayerTab('friends');
+            
+            showView('player');
+        };
 
+        // Khởi tạo trang Admin
+        const initAdminView = () => {
+            switchAdminTab('userMgmt');
+            showView('admin');
+        };
+
+        // Xử lý Đăng Nhập
+        const handleLogin = (e) => {
+            e.preventDefault();
+            const username = usernameInput.value;
+            const password = passwordInput.value;
+
+            // Admin Login
+            if (username === 'admin' && password === '123') {
+                if (rememberMeInput.checked) {
+                    db.saveRememberedUser({ username, password });
+                } else {
+                    db.clearRememberedUser();
+                }
+                initAdminView();
+                return;
+            }
+
+            // Player Login
+            const user = state.users[username];
+            if (user && user.password === password) {
+                if (rememberMeInput.checked) {
+                    db.saveRememberedUser({ username, password });
+                } else {
+                    db.clearRememberedUser();
+                }
+                initPlayerView(user);
+            } else {
+                showToast('Tài khoản hoặc mật khẩu không đúng!', true);
+            }
+        };
+
+        // Xử lý Đăng Xuất
+        const handleLogout = () => {
+            state.currentUser = null;
+            showView('login');
+            // Điền lại nếu có "Nhớ Mật Khẩu"
+            const rememberedUser = db.getRememberedUser();
+            if (rememberedUser) {
+                usernameInput.value = rememberedUser.username;
+                passwordInput.value = rememberedUser.password;
+                rememberMeInput.checked = true;
+            } else {
+                usernameInput.value = '';
+                passwordInput.value = '';
+                rememberMeInput.checked = false;
+            }
+        };
+
+        // --- Main Init Function ---
+        const init = () => {
+            // Load tất cả dữ liệu
+            state.users = db.getUsers();
+            state.challenges = db.getChallenges();
+            state.shopItems = db.getShopItems();
+            state.activityLog = db.getActivityLog();
+            
+            // (FIX-ADDFRIEND) Gán sự kiện cho form THÊM BẠN (submit)
+            addFriendForm.addEventListener('submit', handleAddFriendSubmit);
+            
+            // (FIX-ADDFRIEND) Gán sự kiện cho DANH SÁCH (click)
+            const friendTabContainer = document.getElementById('friends-tab');
+            friendTabContainer.addEventListener('click', handleFriendListClick);
+            
+            // Gán sự kiện cho nút Rep Chuỗi Chung
+            repMutualStreakBtn.addEventListener('click', handleRepMutualStreak);
+
+            // Gán sự kiện chung cho Thử Thách (event delegation)
+            challengeListPlayer.addEventListener('click', (e) => {
+                handleChallengeAnswer(e);
+                handleShowExplanation(e);
+            });
+            
+            // Gán sự kiện cho Cửa Hàng
+            shopListPlayer.addEventListener('click', handleBuyItem);
+
+            // Gán sự kiện Đăng nhập/Đăng xuất
+            loginForm.addEventListener('submit', handleLogin);
+            logoutBtnPlayer.addEventListener('click', handleLogout);
+            logoutBtnAdmin.addEventListener('click', handleLogout);
+            
+            // Gán sự kiện cho Profile
+            profileForm.addEventListener('submit', handleProfileUpdate);
+            
+            // Gán sự kiện Admin: User
+            userForm.addEventListener('submit', handleUserFormSubmit);
+            clearUserFormBtn.addEventListener('click', clearUserForm);
+            userListTbody.addEventListener('click', handleUserActions);
+            
+            // Gán sự kiện Admin: Challenge
+            challengeForm.addEventListener('submit', handleChallengeFormSubmit);
+            clearChallengeFormBtn.addEventListener('click', clearChallengeForm);
+            challengeListTbody.addEventListener('click', handleChallengeActions);
+
+            // Gán sự kiện Admin: Shop
+            shopForm.addEventListener('submit', handleShopFormSubmit);
+            clearShopFormBtn.addEventListener('click', clearShopForm);
+            shopListTbody.addEventListener('click', handleShopActions);
+            
+            // Gán sự kiện Admin: Notify
+            notificationForm.addEventListener('submit', handleNotificationSubmit);
+            
+            // Gán sự kiện Admin: Activity Log
+            clearActivityLogBtn.addEventListener('click', handleLogClearing);
+            clearPurchaseLogBtn.addEventListener('click', handleLogClearing);
+            clearUserNotificationsBtn.addEventListener('click', handleLogClearing);
+            
+            // Render bộ chọn Emoji
+            renderEmojiPicker(profileEmojiList, profileIconInput);
+            renderEmojiPicker(adminEmojiList, userIconInput);
+            
+            // Hiển thị pop-up nhắc nhở sau 1 giây
+            setTimeout(() => {
+                // Chỉ hiện ở trang login
+                if (views.login.classList.contains('hidden') === false) {
+                    showToast('Nhớ hãy lưu mật khẩu của bạn nhé!', false);
+                }
+            }, 1000);
+
+            // Kiểm tra "Nhớ Mật Khẩu"
+            handleLogout(); // Gọi để tự động điền
+        };
+
+        // Chạy ứng dụng
+        init();
+    });
     </script>
 </body>
 </html>
