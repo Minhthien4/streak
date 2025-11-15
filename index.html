@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kin - Công Cụ Reo Chuỗi</title>
+    <title>Kin - Công Cụ Nhiệm Vụ</title>
     <!-- Tải Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Tải Font Inter từ Google Fonts -->
@@ -42,16 +42,6 @@
         .btn-gradient:hover {
             background-image: linear-gradient(to right, #2563eb, #4f46e5);
             box-shadow: 0 4px 15px 0 rgba(99, 102, 241, 0.3);
-        }
-        
-        /* Animation cho chuỗi */
-        @keyframes pulse-light {
-            0%, 100% {
-                box-shadow: 0 0 10px rgba(59, 130, 246, 0.5), 0 0 20px rgba(99, 102, 241, 0.3);
-            }
-            50% {
-                box-shadow: 0 0 20px rgba(59, 130, 246, 1), 0 0 40px rgba(99, 102, 241, 0.7);
-            }
         }
 
         /* Animation cho modal */
@@ -160,6 +150,26 @@
         .notification-bell.has-new .notification-dot {
             display: block;
         }
+        
+        /* Style cho input datetime-local */
+        input[type="datetime-local"] {
+            color-scheme: dark;
+        }
+
+        /* (MỚI) Style cho Rank */
+        .rank-icon {
+            font-size: 5rem; /* 80px */
+            line-height: 1;
+        }
+        .rank-name-Sắt { color: #a1a1aa; } /* zinc-400 */
+        .rank-name-Đồng { color: #f59e0b; } /* amber-500 */
+        .rank-name-Bạc { color: #d1d5db; } /* gray-300 */
+        .rank-name-Vàng { color: #fde047; } /* yellow-300 */
+        .rank-name-BạchKim { color: #67e8f9; } /* cyan-300 */
+        .rank-name-KimCương { color: #a7f3d0; } /* emerald-200 */
+        .rank-name-TinhAnh { color: #f472b6; } /* pink-400 */
+        .rank-name-TháchĐấu { color: #f87171; } /* red-400 */
+        .rank-name-VôHạn { color: #c084fc; } /* purple-400 */
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 font-inter antialiased">
@@ -170,7 +180,7 @@
             <h1 class="text-5xl font-extrabold text-center mb-4 text-white">
                 <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500">Kin</span>
             </h1>
-            <p class="text-center text-gray-400 mb-8">Công cụ reo chuỗi của bạn</p>
+            <p class="text-center text-gray-400 mb-8">Công cụ quản lý nhiệm vụ</p>
             
             <form id="login-form">
                 <div class="mb-5">
@@ -225,7 +235,7 @@
         <nav id="player-nav" class="bg-gray-800 border-b border-gray-700 rounded-t-lg shadow-md mb-1">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-wrap items-center justify-center gap-2 md:gap-4 p-4">
-                    <button data-tab="friends" class="player-tab text-white bg-blue-600 font-medium py-2 px-4 rounded-lg transition duration-200">🔥 Chuỗi Chung</button>
+                    <button data-tab="tasks" class="player-tab text-white bg-blue-600 font-medium py-2 px-4 rounded-lg transition duration-200">🚀 Nhiệm Vụ</button>
                     <button data-tab="challenges" class="player-tab text-gray-300 hover:bg-gray-700 hover:text-white font-medium py-2 px-4 rounded-lg transition duration-200">🎯 Thử Thách</button>
                     <button data-tab="shop" class="player-tab text-gray-300 hover:bg-gray-700 hover:text-white font-medium py-2 px-4 rounded-lg transition duration-200">🛍️ Cửa Hàng</button>
                     <button data-tab="profile" class="player-tab text-gray-300 hover:bg-gray-700 hover:text-white font-medium py-2 px-4 rounded-lg transition duration-200">👤 Cá Nhân</button>
@@ -236,60 +246,12 @@
         <!-- Nội dung các tab của Player -->
         <div class="p-4 bg-gray-800 rounded-b-lg shadow-lg border border-gray-700 border-t-0 min-h-[60vh]">
             
-            <!-- Tab Chuỗi Chung (Bạn Bè) -->
-            <div id="friends-tab" class="player-tab-content">
-                
-                <!-- Giao diện 1: Danh sách bạn bè -->
-                <div id="friend-list-view">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <!-- Cột bên trái: Thêm bạn và Danh sách bạn bè -->
-                        <div>
-                            <h2 class="text-3xl font-bold text-white mb-6">Bạn Bè & Chuỗi Chung</h2>
-                            <!-- Thêm Bạn Bè -->
-                            <form id="add-friend-form" class="mb-6">
-                                <label for="add-friend-username" class="block mb-2 text-sm font-medium text-gray-300">Thêm bạn mới (bằng tài khoản)</label>
-                                <div class="flex gap-2">
-                                    <input type="text" id="add-friend-username" class="flex-grow bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Nhập username" required>
-                                    <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition duration-200">Gửi Yêu Cầu</button>
-                                </div>
-                            </form>
-                            
-                            <!-- Danh Sách Bạn Bè (Chuỗi chung) -->
-                            <div id="friend-list-container" class="space-y-3 max-h-96 overflow-y-auto pr-2">
-                                <p class="text-gray-400">Bạn chưa có người bạn nào.</p>
-                            </div>
-                        </div>
-
-                        <!-- Cột bên phải: Yêu cầu kết bạn -->
-                        <div class="bg-gray-900 p-6 rounded-lg shadow-inner border border-gray-700">
-                            <h3 class="text-2xl font-bold text-white mb-4">Yêu Cầu Kết Bạn</h3>
-                            <div id="friend-requests-list" class="space-y-3 max-h-96 overflow-y-auto pr-2">
-                                <p class="text-gray-400">Không có yêu cầu nào.</p>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Tab Nhiệm Vụ -->
+            <div id="tasks-tab" class="player-tab-content">
+                <h2 class="text-3xl font-bold text-white mb-6">Nhiệm Vụ Của Bạn</h2>
+                <div id="task-list-player" class="space-y-4">
+                    <p class="text-gray-400">Không có nhiệm vụ nào được giao.</p>
                 </div>
-
-                <!-- Giao diện 2: Chi tiết Rep Chuỗi Chung -->
-                <div id="mutual-streak-detail-view" class="hidden">
-                    <button id="back-to-friend-list" class="text-sm text-blue-400 hover:text-blue-300 mb-4">&larr; Quay lại danh sách</button>
-                    <div class="text-center p-6 md:p-12 bg-gray-900 rounded-2xl shadow-inner border border-gray-700">
-                        <div class="flex justify-center items-center gap-4 mb-4">
-                            <div id="mutual-user-icon" class="user-icon text-4xl w-16 h-16"></div>
-                            <span class="text-4xl font-bold text-gray-400">&harr;</span>
-                            <div id="mutual-friend-icon" class="user-icon text-4xl w-16 h-16"></div>
-                        </div>
-                        <h2 class="text-2xl font-bold text-white mb-2">Chuỗi với <span id="mutual-friend-name" class="text-blue-400"></span></h2>
-                        <div class="text-8xl md:text-9xl mb-4" id="mutual-streak-icon">🚀</div>
-                        <h2 class="text-6xl md:text-8xl font-extrabold text-white mb-2" id="mutual-streak-count">0</h2>
-                        <p class="text-2xl font-semibold text-blue-400 mb-8" id="mutual-streak-milestone">Mốc: 0-10</p>
-                        <button id="rep-mutual-streak-btn" class="text-white font-bold py-4 px-10 text-xl rounded-xl shadow-2xl transition duration-300 transform hover:scale-105" style="animation: pulse-light 2s infinite;">
-                            🔥 Reo Chuỗi Chung!
-                        </button>
-                        <p id="mutual-streak-message" class="text-lg mt-4 h-6"></p>
-                    </div>
-                </div>
-
             </div>
             
             <!-- Tab Thử Thách -->
@@ -317,37 +279,51 @@
                 </div>
             </div>
             
-            <!-- Tab Cá Nhân -->
+            <!-- (CẬP NHẬT) Tab Cá Nhân (Thêm Rank) -->
             <div id="profile-tab" class="player-tab-content hidden">
-                <h2 class="text-3xl font-bold text-white mb-6">Thông Tin Cá Nhân</h2>
-                <div class="max-w-lg mx-auto bg-gray-900 p-6 rounded-lg shadow-inner border border-gray-700">
-                    <div class="text-center mb-6">
-                        <div id="profile-icon-display" class="user-icon text-5xl w-24 h-24 mx-auto mb-4 border-4 border-blue-500">👤</div>
+                <div class="flex justify-between items-center mb-6">
+                     <h2 class="text-3xl font-bold text-white">Thông Tin Cá Nhân</h2>
+                     <button id="view-rules-btn" class="text-sm text-blue-400 hover:text-blue-300">Xem luật chơi</button>
+                </div>
+               
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Cột Rank -->
+                    <div class="md:col-span-1 text-center bg-gray-900 p-6 rounded-lg shadow-inner border border-gray-700 flex flex-col items-center justify-center">
+                        <div id="rank-icon" class="rank-icon mb-4">⚙️</div>
+                        <h3 id="rank-name" class="text-3xl font-bold mb-2 rank-name-Sắt">Rank Sắt</h3>
+                        <p class="text-gray-400">Tổng nhiệm vụ: <span id="rank-tasks-completed" class="font-bold text-white">0</span></p>
                     </div>
-                    <form id="profile-form" class="space-y-4">
-                        <div>
-                            <label for="profile-displayname" class="block mb-2 text-sm font-medium text-gray-300">Tên Hiển Thị</label>
-                            <input type="text" id="profile-displayname" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
-                            <p id="cooldown-name" class="text-xs text-yellow-500 mt-1"></p>
+                    
+                    <!-- Cột Form -->
+                    <div class="md:col-span-2 bg-gray-900 p-6 rounded-lg shadow-inner border border-gray-700">
+                        <div class="text-center mb-6">
+                            <div id="profile-icon-display" class="user-icon text-5xl w-24 h-24 mx-auto mb-4 border-4 border-blue-500">👤</div>
                         </div>
-                        <div>
-                            <label for="profile-icon" class="block mb-2 text-sm font-medium text-gray-300">Icon (chỉ 1 emoji, ví dụ: 😊)</label>
-                            <input type="text" id="profile-icon" maxlength="2" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
-                            <!-- Bộ chọn Emoji -->
-                            <div id="profile-emoji-list" class="flex flex-wrap gap-2 mt-2">
-                                <!-- Emojis sẽ được render vào đây bằng JS -->
+                        <form id="profile-form" class="space-y-4">
+                            <div>
+                                <label for="profile-displayname" class="block mb-2 text-sm font-medium text-gray-300">Tên Hiển Thị</label>
+                                <input type="text" id="profile-displayname" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                                <p id="cooldown-name" class="text-xs text-yellow-500 mt-1"></p>
                             </div>
-                            <p id="cooldown-icon" class="text-xs text-yellow-500 mt-1"></p>
-                        </div>
-                        <div>
-                            <label for="profile-password" class="block mb-2 text-sm font-medium text-gray-300">Mật Khẩu Mới (bỏ trống nếu không đổi)</label>
-                            <input type="password" id="profile-password" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="•••••••••">
-                            <p id="cooldown-password" class="text-xs text-yellow-500 mt-1"></p>
-                        </div>
-                        <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition duration-200">
-                            Lưu Thay Đổi
-                        </button>
-                    </form>
+                            <div>
+                                <label for="profile-icon" class="block mb-2 text-sm font-medium text-gray-300">Icon (chỉ 1 emoji, ví dụ: 😊)</label>
+                                <input type="text" id="profile-icon" maxlength="2" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                                <!-- Bộ chọn Emoji -->
+                                <div id="profile-emoji-list" class="flex flex-wrap gap-2 mt-2">
+                                    <!-- Emojis sẽ được render vào đây bằng JS -->
+                                </div>
+                                <p id="cooldown-icon" class="text-xs text-yellow-500 mt-1"></p>
+                            </div>
+                            <div>
+                                <label for="profile-password" class="block mb-2 text-sm font-medium text-gray-300">Mật Khẩu Mới (bỏ trống nếu không đổi)</label>
+                                <input type="password" id="profile-password" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="•••••••••">
+                                <p id="cooldown-password" class="text-xs text-yellow-500 mt-1"></p>
+                            </div>
+                            <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition duration-200">
+                                Lưu Thay Đổi
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -364,13 +340,14 @@
             </button>
         </header>
 
-        <!-- Tab điều hướng Admin -->
+        <!-- Tab điều hướng Admin (Thêm tab Nhiệm Vụ) -->
         <nav id="admin-nav" class="bg-gray-800 border-b border-gray-700 rounded-t-lg shadow-md mb-1">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-wrap items-center justify-center gap-2 md:gap-4 p-4">
                     <button data-tab="userMgmt" class="admin-tab text-white bg-blue-600 font-medium py-2 px-4 rounded-lg transition duration-200">Quản Lí Người Dùng</button>
-                    <button data-tab="challengeMgmt" class="admin-tab text-gray-300 hover:bg-gray-700 hover:text-white font-medium py-2 px-4 rounded-lg transition duration-200">Quản Lí Thử Thách</button>
-                    <button data-tab="shopMgmt" class="admin-tab text-gray-300 hover:bg-gray-700 hover:text-white font-medium py-2 px-4 rounded-lg transition duration-200">Quản Lí Cửa Hàng</button>
+                    <button data-tab="taskMgmt" class="admin-tab text-gray-300 hover:bg-gray-700 hover:text-white font-medium py-2 px-4 rounded-lg transition duration-200">🚀 Quản Lí Nhiệm Vụ</button>
+                    <button data-tab="challengeMgmt" class="admin-tab text-gray-300 hover:bg-gray-700 hover:text-white font-medium py-2 px-4 rounded-lg transition duration-200">🎯 Quản Lí Thử Thách</button>
+                    <button data-tab="shopMgmt" class="admin-tab text-gray-300 hover:bg-gray-700 hover:text-white font-medium py-2 px-4 rounded-lg transition duration-200">🛍️ Quản Lí Cửa Hàng</button>
                     <button data-tab="notifyMgmt" class="admin-tab text-gray-300 hover:bg-gray-700 hover:text-white font-medium py-2 px-4 rounded-lg transition duration-200">Gửi Thông Báo</button>
                     <button data-tab="activityLog" class="admin-tab text-gray-300 hover:bg-gray-700 hover:text-white font-medium py-2 px-4 rounded-lg transition duration-200">Lịch Sử Hoạt Động</button>
                 </div>
@@ -380,11 +357,11 @@
         <!-- Nội dung các tab của Admin -->
         <div class="p-6 bg-gray-800 rounded-b-lg shadow-lg border border-gray-700 border-t-0 min-h-[70vh]">
 
-            <!-- Tab Quản Lí Người Dùng -->
-            <div id="userMgmt-tab" class="admin-tab-content">
+            <!-- (CẬP NHẬT) Tab Quản Lí Người Dùng (Thêm Rank) -->
+            <div id="user-mgmt-tab" class="admin-tab-content">
                 <h2 class="text-3xl font-bold text-white mb-6">Quản Lí Người Dùng</h2>
-                <!-- Form cập nhật (Đã xóa Chuỗi cá nhân) -->
-                <form id="user-form" class="bg-gray-900 p-6 rounded-lg shadow-inner border border-gray-700 mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- (CẬP NHẬT) Form (Thêm Rank) -->
+                <form id="user-form" class="bg-gray-900 p-6 rounded-lg shadow-inner border border-gray-700 mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                     <input type="hidden" id="user-id">
                     <div>
                         <label for="user-username" class="block mb-2 text-sm font-medium text-gray-300">Tài khoản</label>
@@ -402,7 +379,12 @@
                         <label for="user-balance" class="block mb-2 text-sm font-medium text-gray-300">Tiền thưởng 💰</label>
                         <input type="number" id="user-balance" value="0" min="0" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                     </div>
-                    <div class="md:col-span-2">
+                     <!-- (MỚI) Trường Rank -->
+                    <div>
+                        <label for="user-tasks-completed" class="block mb-2 text-sm font-medium text-gray-300">Nhiệm Vụ HT (Rank) 🚀</label>
+                        <input type="number" id="user-tasks-completed" value="0" min="0" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    </div>
+                    <div class="lg:col-span-2">
                         <label for="user-icon" class="block mb-2 text-sm font-medium text-gray-300">Icon (Emoji)</label>
                         <input type="text" id="user-icon" maxlength="2" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                         <!-- Bộ chọn Emoji (Admin) -->
@@ -410,8 +392,8 @@
                             <!-- Emojis sẽ được render vào đây bằng JS -->
                         </div>
                     </div>
-                    <div class="md:col-span-2 lg:col-span-4 flex gap-4">
-                        <button type="submit" class="flex-1 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition duration-200">Lưu</u-form>
+                    <div class="lg:col-span-5 flex gap-4">
+                        <button type="submit" class="flex-1 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition duration-200">Lưu</button>
                         <button type="button" id="clear-user-form-btn" class="flex-1 text-gray-900 bg-gray-400 hover:bg-gray-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition duration-200">Hủy</button>
                     </div>
                 </form>
@@ -420,11 +402,12 @@
                     <table class="w-full text-sm text-left text-gray-300">
                         <thead class="text-xs text-gray-300 uppercase bg-gray-700">
                             <tr>
-                                <!-- Bảng (Đã xóa Chuỗi cá nhân) -->
+                                <!-- (CẬP NHẬT) Bảng (Thêm Rank) -->
                                 <th scope="col" class="py-3 px-6">Icon</th>
                                 <th scope="col" class="py-3 px-6">Tên Hiển Thị</th>
                                 <th scope="col" class="py-3 px-6">Tài khoản</th>
                                 <th scope="col" class="py-3 px-6">Tiền thưởng</th>
+                                <th scope="col" class="py-3 px-6">Rank (NV)</th>
                                 <th scope="col" class="py-3 px-6">Hành động</th>
                             </tr>
                         </thead>
@@ -433,9 +416,54 @@
                     </table>
                 </div>
             </div>
+            
+            <!-- Tab Quản Lí Nhiệm Vụ -->
+            <div id="task-mgmt-tab" class="admin-tab-content hidden">
+                <h2 class="text-3xl font-bold text-white mb-6">Quản Lí Nhiệm Vụ</h2>
+                <form id="task-form" class="bg-gray-900 p-6 rounded-lg shadow-inner border border-gray-700 mb-8 space-y-4">
+                    <input type="hidden" id="task-id">
+                    <div>
+                        <label for="task-name" class="block mb-2 text-sm font-medium text-gray-300">Tên nhiệm vụ</label>
+                        <input type="text" id="task-name" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="task-reward" class="block mb-2 text-sm font-medium text-gray-300">Tiền thưởng 💰</label>
+                            <input type="number" id="task-reward" min="0" value="50" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                        </div>
+                        <div>
+                            <label for="task-penalty" class="block mb-2 text-sm font-medium text-gray-300">Tiền phạt (nếu trễ) 💸</label>
+                            <input type="number" id="task-penalty" min="0" value="10" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                        </div>
+                        <div>
+                            <label for="task-deadline" class="block mb-2 text-sm font-medium text-gray-300">Deadline</label>
+                            <input type="datetime-local" id="task-deadline" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <button type="submit" class="flex-1 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition duration-200">Lưu Nhiệm Vụ</button>
+                        <button type="button" id="clear-task-form-btn" class="flex-1 text-gray-900 bg-gray-400 hover:bg-gray-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition duration-200">Hủy</button>
+                    </div>
+                </form>
+                <div class="overflow-x-auto relative shadow-md rounded-lg border border-gray-700">
+                    <table class="w-full text-sm text-left text-gray-300">
+                        <thead class="text-xs text-gray-300 uppercase bg-gray-700">
+                            <tr>
+                                <th scope="col" class="py-3 px-6">Tên nhiệm vụ</th>
+                                <th scope="col" class="py-3 px-6">Thưởng</th>
+                                <th scope="col" class="py-3 px-6">Phạt</th>
+                                <th scope="col" class="py-3 px-6">Deadline</th>
+                                <th scope="col" class="py-3 px-6">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="task-list-tbody" class="divide-y divide-gray-700">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
             <!-- Tab Quản Lí Thử Thách -->
-            <div id="challengeMgmt-tab" class="admin-tab-content hidden">
+            <div id="challenge-mgmt-tab" class="admin-tab-content hidden">
                 <h2 class="text-3xl font-bold text-white mb-6">Quản Lí Thử Thách</h2>
                 <form id="challenge-form" class="bg-gray-900 p-6 rounded-lg shadow-inner border border-gray-700 mb-8 space-y-4">
                     <input type="hidden" id="challenge-id">
@@ -472,7 +500,7 @@
                         </div>
                     </div>
                     
-                    <!-- Phần Giải Thích (Mới) -->
+                    <!-- Phần Giải Thích -->
                     <hr class="border-gray-600">
                     <div>
                         <label for="challenge-explanation-text" class="block mb-2 text-sm font-medium text-gray-300">Giải thích đáp án (Text)</label>
@@ -505,7 +533,7 @@
             </div>
 
             <!-- Tab Quản Lí Cửa Hàng -->
-            <div id="shopMgmt-tab" class="admin-tab-content hidden">
+            <div id="shop-mgmt-tab" class="admin-tab-content hidden">
                 <h2 class="text-3xl font-bold text-white mb-6">Quản Lí Cửa Hàng</h2>
                 <!-- Form Cửa Hàng (Thêm Giảm Giá) -->
                 <form id="shop-form" class="bg-gray-900 p-6 rounded-lg shadow-inner border border-gray-700 mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -533,7 +561,7 @@
                             <tr>
                                 <th scope="col" class="py-3 px-6">Tên vật phẩm</th>
                                 <th scope="col" class="py-3 px-6">Giá Gốc</th>
-                                <th scope="col" class="py-3 px-6">Giảm Giá</th>
+                                <th scope="col" class="py-3 px-CẬP NHẬT">Giảm Giá</th>
                                 <th scope="col" class="py-3 px-6">Giá Mới</th>
                                 <th scope="col" class="py-3 px-6">Hành động</th>
                             </tr>
@@ -545,7 +573,7 @@
             </div>
 
             <!-- Tab Gửi Thông Báo -->
-            <div id="notifyMgmt-tab" class="admin-tab-content hidden">
+            <div id="notify-mgmt-tab" class="admin-tab-content hidden">
                 <h2 class="text-3xl font-bold text-white mb-6">Gửi Thông Báo</h2>
                 <form id="notification-form" class="bg-gray-900 p-6 rounded-lg shadow-inner border border-gray-700 max-w-lg mx-auto">
                     <div class="mb-4">
@@ -559,7 +587,7 @@
             </div>
             
             <!-- Tab Lịch Sử Hoạt Động -->
-            <div id="activityLog-tab" class="admin-tab-content hidden">
+            <div id="activity-log-tab" class="admin-tab-content hidden">
                 <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6">
                     <h2 class="text-3xl font-bold text-white mb-4 sm:mb-0">Lịch Sử Hoạt Động (Mới nhất)</h2>
                     <div class="flex flex-col sm:flex-row gap-2">
@@ -597,7 +625,7 @@
                 <!-- Nội dung modal sẽ được chèn vào đây -->
             </div>
             <div class="p-5 border-t border-gray-700 text-right space-x-3">
-                <button id="modal-cancel-btn" class="hidden text-gray-900 bg-gray-400 hover:bg-gray-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition duration-200">Hủy</V>
+                <button id="modal-cancel-btn" class="hidden text-gray-900 bg-gray-400 hover:bg-gray-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition duration-200">Hủy</button>
                 <button id="modal-ok-btn" class="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition duration-200">
                     OK
                 </button>
@@ -636,7 +664,6 @@
 
         // --- DOM Elements ---
         const views = {
-            // KHÔNG CÓ loading
             login: document.getElementById('login-view'),
             player: document.getElementById('player-view'),
             admin: document.getElementById('admin-view'),
@@ -677,11 +704,15 @@
         // Player Nav
         const playerNav = document.getElementById('player-nav');
         const playerTabs = {
-            friends: document.getElementById('friends-tab'),
+            tasks: document.getElementById('tasks-tab'),
             challenges: document.getElementById('challenges-tab'),
             shop: document.getElementById('shop-tab'),
             profile: document.getElementById('profile-tab'),
         };
+        
+        // Player: Tasks
+        const tasksTab = document.getElementById('tasks-tab');
+        const taskListPlayer = document.getElementById('task-list-player');
         
         // Player: Challenges
         const challengeListPlayer = document.getElementById('challenge-list-player');
@@ -701,35 +732,22 @@
         const cooldownName = document.getElementById('cooldown-name');
         const cooldownIcon = document.getElementById('cooldown-icon');
         const cooldownPassword = document.getElementById('cooldown-password');
-        
-        // Player: Friends (Chuỗi Chung)
-        const friendListView = document.getElementById('friend-list-view');
-        const mutualStreakDetailView = document.getElementById('mutual-streak-detail-view');
-        const addFriendForm = document.getElementById('add-friend-form');
-        const addFriendUsernameInput = document.getElementById('add-friend-username');
-        const friendListContainer = document.getElementById('friend-list-container');
-        const friendRequestsList = document.getElementById('friend-requests-list');
-        const backToFriendListBtn = document.getElementById('back-to-friend-list');
-        
-        // Player: Mutual Streak Detail
-        const mutualUserIcon = document.getElementById('mutual-user-icon');
-        const mutualFriendIcon = document.getElementById('mutual-friend-icon');
-        const mutualFriendName = document.getElementById('mutual-friend-name');
-        const mutualStreakIcon = document.getElementById('mutual-streak-icon');
-        const mutualStreakCount = document.getElementById('mutual-streak-count');
-        const mutualStreakMilestone = document.getElementById('mutual-streak-milestone');
-        const repMutualStreakBtn = document.getElementById('rep-mutual-streak-btn');
-        const mutualStreakMessage = document.getElementById('mutual-streak-message');
+        const viewRulesBtn = document.getElementById('view-rules-btn'); // Mới
+        const rankIcon = document.getElementById('rank-icon'); // Mới
+        const rankName = document.getElementById('rank-name'); // Mới
+        const rankTasksCompleted = document.getElementById('rank-tasks-completed'); // Mới
+
 
         // Admin
         const logoutBtnAdmin = document.getElementById('logout-btn-admin');
         const adminNav = document.getElementById('admin-nav');
         const adminTabs = {
-            userMgmt: document.getElementById('userMgmt-tab'),
-            challengeMgmt: document.getElementById('challengeMgmt-tab'),
-            shopMgmt: document.getElementById('shopMgmt-tab'),
-            notifyMgmt: document.getElementById('notifyMgmt-tab'),
-            activityLog: document.getElementById('activityLog-tab'),
+            userMgmt: document.getElementById('user-mgmt-tab'),
+            taskMgmt: document.getElementById('task-mgmt-tab'),
+            challengeMgmt: document.getElementById('challenge-mgmt-tab'),
+            shopMgmt: document.getElementById('shop-mgmt-tab'),
+            notifyMgmt: document.getElementById('notify-mgmt-tab'),
+            activityLog: document.getElementById('activity-log-tab'),
         };
         
         // Admin: User Mgmt
@@ -740,8 +758,19 @@
         const adminEmojiList = document.getElementById('admin-emoji-list');
         const userPasswordInput = document.getElementById('user-password');
         const userBalanceInput = document.getElementById('user-balance');
+        const userTasksCompletedInput = document.getElementById('user-tasks-completed'); // Mới
         const clearUserFormBtn = document.getElementById('clear-user-form-btn');
         const userListTbody = document.getElementById('user-list-tbody');
+        
+        // Admin: Task Mgmt
+        const taskForm = document.getElementById('task-form');
+        const taskIdInput = document.getElementById('task-id');
+        const taskNameInput = document.getElementById('task-name');
+        const taskRewardInput = document.getElementById('task-reward');
+        const taskPenaltyInput = document.getElementById('task-penalty');
+        const taskDeadlineInput = document.getElementById('task-deadline');
+        const clearTaskFormBtn = document.getElementById('clear-task-form-btn');
+        const taskListTbody = document.getElementById('task-list-tbody');
         
         // Admin: Challenge Mgmt
         const challengeForm = document.getElementById('challenge-form');
@@ -781,33 +810,48 @@
         let state = {
             currentUser: null,
             users: {},
+            tasks: [],
             challenges: [],
             shopItems: [],
             activityLog: [],
+            editingTaskId: null,
             editingChallengeId: null,
             editingShopItemId: null,
-            currentFriendUsername: null, // Dùng cho trang chi tiết chuỗi chung
-            modalOkCallback: null, // Callback cho nút OK của modal
-            modalCancelCallback: null // Callback cho nút Cancel của modal
+            modalOkCallback: null,
+            modalCancelCallback: null
         };
         
         // Danh sách emoji để chọn
         const EMOJI_LIST = ['😊', '😂', '🔥', '🚀', '🌟', '❤️', '🎉', '😎', '👑', '💎', '💪', '🎯'];
 
+        // (MỚI) Định nghĩa các mốc Rank
+        const RANKS = [
+            { threshold: 0, name: 'Sắt', icon: '⚙️' },
+            { threshold: 10, name: 'Đồng', icon: '🥉' },
+            { threshold: 20, name: 'Bạc', icon: '🥈' },
+            { threshold: 30, name: 'Vàng', icon: '🥇' },
+            { threshold: 50, name: 'Bạch Kim', icon: '💎' },
+            { threshold: 75, name: 'Kim Cương', icon: '💠' },
+            { threshold: 100, name: 'Tinh Anh', icon: '🌟' },
+            { threshold: 150, name: 'Thách Đấu', icon: '🔥' },
+            { threshold: 200, name: 'Vô Hạn', icon: '🚀' }
+        ];
+
         // --- Database (localStorage) ---
         const db = {
-            // Hàm trợ giúp để lấy dữ liệu
             _get: (key, defaultValue) => {
                 const data = localStorage.getItem(key);
                 return data ? JSON.parse(data) : defaultValue;
             },
-            // Hàm trợ giúp để lưu dữ liệu
             _save: (key, value) => {
                 localStorage.setItem(key, JSON.stringify(value));
             },
             
             getUsers: () => db._get('kin_users', {}),
             saveUsers: (users) => db._save('kin_users', users),
+            
+            getTasks: () => db._get('kin_tasks', []),
+            saveTasks: (tasks) => db._save('kin_tasks', tasks),
             
             getChallenges: () => db._get('kin_challenges', []),
             saveChallenges: (challenges) => db._save('kin_challenges', challenges),
@@ -837,7 +881,7 @@
             window.scrollTo(0, 0);
         };
 
-        // Hiển thị Toast (pop-up nhỏ)
+        // Hiển thị Toast
         let toastTimer;
         const showToast = (message, isError = false) => {
             clearTimeout(toastTimer);
@@ -853,7 +897,7 @@
         // Hiển thị Modal
         const showModal = (title, body, okText = 'OK', showCancel = false, cancelText = 'Hủy') => {
             modalTitle.textContent = title;
-            modalBody.innerHTML = body; // Dùng innerHTML để render ảnh
+            modalBody.innerHTML = body;
             modalOkBtn.textContent = okText;
             
             if (showCancel) {
@@ -865,7 +909,6 @@
             
             modal.classList.remove('hidden');
             
-            // Trả về một promise để xử lý bất đồng bộ
             return new Promise((resolve) => {
                 state.modalOkCallback = () => resolve(true);
                 state.modalCancelCallback = () => resolve(false);
@@ -875,12 +918,10 @@
         // Ẩn Modal
         const hideModal = () => {
             modal.classList.add('hidden');
-            // Xóa callback để tránh lỗi
             state.modalOkCallback = null;
             state.modalCancelCallback = null;
         };
         
-        // Xử lý sự kiện đóng Modal
         modalCloseBtn.onclick = () => {
             if (state.modalCancelCallback) state.modalCancelCallback();
             hideModal();
@@ -893,14 +934,29 @@
             if (state.modalCancelCallback) state.modalCancelCallback();
             hideModal();
         };
+        
+        // (MỚI) Thêm thông báo vào chuông
+        const addNotification = (user, message) => {
+            const notification = {
+                id: `notif_${Date.now()}`,
+                timestamp: Date.now(),
+                message: message,
+            };
+            user.notifications.push(notification);
+            user.hasNewNotification = true;
+            
+            // Cập nhật UI nếu user đang online
+            if(state.currentUser && state.currentUser.username === user.username) {
+                 notificationBell.classList.add('has-new');
+            }
+        };
 
         // Hiển thị Modal Chuông Thông Báo
         const showNotificationModal = (user) => {
-            notificationModalBody.innerHTML = ''; // Xóa nội dung cũ
+            notificationModalBody.innerHTML = '';
             if (!user.notifications || user.notifications.length === 0) {
                 notificationModalBody.innerHTML = '<p class="text-gray-400">Bạn không có thông báo nào.</p>';
             } else {
-                // Sắp xếp, mới nhất ở trên
                 user.notifications.sort((a, b) => b.timestamp - a.timestamp).forEach(notif => {
                     const date = new Date(notif.timestamp).toLocaleString('vi-VN');
                     notificationModalBody.innerHTML += `
@@ -913,13 +969,11 @@
             }
             notificationModal.classList.remove('hidden');
             
-            // Đánh dấu đã đọc
             user.hasNewNotification = false;
             notificationBell.classList.remove('has-new');
             db.saveUsers(state.users);
         };
         
-        // Ẩn Modal Chuông Thông Báo
         const hideNotificationModal = () => {
             notificationModal.classList.add('hidden');
         };
@@ -927,37 +981,24 @@
         notificationModalCloseBtn.onclick = hideNotificationModal;
         notificationModalOkBtn.onclick = hideNotificationModal;
 
-        // Thêm vào Activity Log (và lưu)
+        // Thêm vào Activity Log
         const addActivityLog = (message, type, user) => {
             const logEntry = {
                 id: Date.now(),
                 timestamp: Date.now(),
                 message,
-                type, // 'challenge', 'purchase'
+                type, // 'challenge', 'purchase', 'task_success', 'task_fail'
                 user: user.username
             };
-            state.activityLog.unshift(logEntry); // Thêm vào đầu mảng
-            if (state.activityLog.length > 100) {
-                state.activityLog.pop(); // Giới hạn 100 log
-            }
+            state.activityLog.unshift(logEntry);
+            if (state.activityLog.length > 100) state.activityLog.pop();
             db.saveActivityLog(state.activityLog);
             
-            // Render lại log nếu đang ở trang admin
             if (views.admin.classList.contains('hidden') === false) {
                 renderActivityLog();
             }
         };
 
-        // Tính toán mốc chuỗi và icon
-        const getStreakMilestone = (count) => {
-            if (count === 0) return { icon: '🌱', milestone: 'Mốc: 0' };
-            if (count >= 1 && count <= 10) return { icon: '🚀', milestone: `Mốc: 1-10 (Ngày ${count})` };
-            if (count >= 11 && count <= 20) return { icon: '🔥', milestone: `Mốc: 11-20 (Ngày ${count})` };
-            if (count >= 21 && count <= 50) return { icon: '💎', milestone: `Mốc: 21-50 (Ngày ${count})` };
-            if (count >= 51 && count <= 100) return { icon: '👑', milestone: `Mốc: 51-100 (Ngày ${count})` };
-            return { icon: '🌌', milestone: `Mốc: >100 (Ngày ${count})` };
-        };
-        
         // Hàm render bộ chọn Emoji
         const renderEmojiPicker = (container, inputElement) => {
             container.innerHTML = '';
@@ -972,304 +1013,187 @@
                 container.appendChild(btn);
             });
         };
-
-        // --- Core Logic Functions ---
-
-        // (FIX-ADDFRIEND) Tách hàm xử lý submit form
-        const handleAddFriendSubmit = (e) => {
-            e.preventDefault();
-            const friendUsername = addFriendUsernameInput.value.trim();
-            const user = state.currentUser;
-            const users = state.users;
-
-            if (!friendUsername) return;
-            if (friendUsername === user.username) {
-                showToast('Bạn không thể tự kết bạn với mình.', true);
-                return;
+        
+        // --- Task & Rank Logic ---
+        
+        // (MỚI) Lấy Rank theo số nhiệm vụ
+        const getRank = (tasksCompleted) => {
+            let currentRank = RANKS[0];
+            for (const rank of RANKS) {
+                if (tasksCompleted >= rank.threshold) {
+                    currentRank = rank;
+                } else {
+                    break; 
+                }
             }
+            return currentRank;
+        };
+        
+        // (MỚI) Render Rank UI
+        const renderRankProfile = (user) => {
+            const rank = getRank(user.tasksCompleted);
+            rankIcon.textContent = rank.icon;
+            rankName.textContent = `Rank ${rank.name}`;
+            rankTasksCompleted.textContent = user.tasksCompleted;
             
-            const friendUser = users[friendUsername];
-            if (!friendUser) {
-                showToast('Không tìm thấy người dùng này.', true);
-                return;
-            }
-
-            // Kiểm tra đã là bạn hoặc đã gửi yêu cầu
-            if (user.friends[friendUsername]) {
-                showToast('Bạn đã là bạn bè với người này.', true);
-                return;
-            }
-            if (friendUser.friendRequests.includes(user.username)) {
-                showToast('Bạn đã gửi yêu cầu cho người này rồi.', true);
-                return;
-            }
-
-            // Gửi yêu cầu
-            friendUser.friendRequests.push(user.username);
-            db.saveUsers(users);
+            // Xóa hết class màu cũ
+            rankName.classList.forEach(c => {
+                if(c.startsWith('rank-name-')) {
+                    rankName.classList.remove(c);
+                }
+            });
+            // Thêm class màu mới
+            rankName.classList.add(`rank-name-${rank.name}`);
+        };
+        
+        // (MỚI) Hiển thị luật chơi
+        viewRulesBtn.onclick = () => {
+            let rulesBody = `
+                <ul class="list-disc list-inside space-y-2">
+                    <li>Hoàn thành nhiệm vụ (NV) để tăng điểm Rank.</li>
+                    <li>
+                        <strong class="text-red-400">QUAN TRỌNG:</strong> Nếu bạn trễ deadline bất kỳ nhiệm vụ nào, 
+                        điểm Rank (tổng số NV) sẽ bị <strong class="text-red-400">RESET VỀ 0</strong>.
+                    </li>
+                    <li>Bạn sẽ nhận được thông báo (chuông 🔔) khi bị reset.</li>
+                </ul>
+                <h4 class="font-bold text-white mt-4 mb-2">Các Mốc Rank:</h4>
+                <ul class="list-none space-y-1 text-sm">
+            `;
+            RANKS.forEach(rank => {
+                rulesBody += `<li><span class="font-bold text-lg">${rank.icon}</span> (Rank ${rank.name}): ${rank.threshold} NV</li>`;
+            });
+            rulesBody += '</ul>';
             
-            showToast(`Đã gửi yêu cầu kết bạn đến @${friendUsername}.`);
-            addFriendUsernameInput.value = '';
+            showModal('Luật Chơi Rank', rulesBody);
         };
 
-        // (FIX-ADDFRIEND) Tách hàm xử lý click trong danh sách
-        const handleFriendListClick = (e) => {
-            const user = state.currentUser;
-            const users = state.users;
+        // (CẬP NHẬT) Kiểm tra deadline (Thêm logic Reset Rank)
+        const checkTaskDeadlines = (user) => {
             const now = Date.now();
-
-            // 1. Chấp nhận yêu cầu
-            const acceptBtn = e.target.closest('.accept-friend-btn');
-            if (acceptBtn) {
-                const friendUsername = acceptBtn.dataset.username;
-                const friendData = users[friendUsername];
-                
-                // Xóa yêu cầu khỏi danh sách của mình
-                user.friendRequests = user.friendRequests.filter(u => u !== friendUsername);
-                
-                // Thêm vào danh sách bạn bè của cả hai
-                const mutualFriendData = {
-                    streakCount: 0,
-                    lastRep: null, // Ai là người rep cuối cùng
-                    lastRepTimestamp: now,
-                    turn: friendUsername // Lượt của người gửi yêu cầu
-                };
-                
-                user.friends[friendUsername] = { ...mutualFriendData };
-                friendData.friends[user.username] = { ...mutualFriendData };
-                
-                // (FIX) Phải cập nhật lại 'users' object với 'user' đã thay đổi
-                users[user.username] = user;
-                
-                db.saveUsers(users);
-                renderFriends(user);
-                showToast(`Bạn đã kết bạn với @${friendUsername}!`);
-                return; // Đã xử lý, không cần chạy tiếp
-            }
-
-            // 2. Từ chối yêu cầu
-            const rejectBtn = e.target.closest('.reject-friend-btn');
-            if (rejectBtn) {
-                const friendUsername = rejectBtn.dataset.username;
-                user.friendRequests = user.friendRequests.filter(u => u !== friendUsername);
-                
-                // (FIX) Phải cập nhật lại 'users' object với 'user' đã thay đổi
-                users[user.username] = user;
-                
-                db.saveUsers(users);
-                renderFriends(user);
-                showToast(`Đã từ chối yêu cầu của @${friendUsername}.`, true);
-                return; // Đã xử lý, không cần chạy tiếp
+            let changed = false;
+            let didFail = false; // (Mới)
+            
+            state.tasks.forEach(task => {
+                // Nếu task đã qua deadline VÀ user chưa hoàn thành
+                if (now > task.deadline && !user.completedTasksHistory.includes(task.id)) {
+                    // (CẬP NHẬT) Reset Rank
+                    user.tasksCompleted = 0; // Reset về 0
+                    didFail = true;
+                    
+                    // Thêm vào lịch sử (để ẩn đi)
+                    user.completedTasksHistory.push(task.id); 
+                    
+                    user.balance = Math.max(0, user.balance - task.penalty); // Trừ tiền phạt
+                    
+                    addActivityLog(
+                        `đã TRỄ DEADLINE nhiệm vụ "${task.name}", bị phạt 💸 ${task.penalty} và RESET RANK VỀ 0`, 
+                        'task_fail', 
+                        user
+                    );
+                    changed = true;
+                }
+            });
+            
+            if (didFail) {
+                addNotification(user, `🚨 Bạn đã bị RESET RANK về 0 do trễ deadline nhiệm vụ!`);
             }
             
-            // 3. Xem chi tiết chuỗi chung
-            const friendCard = e.target.closest('.friend-card');
-            if (friendCard) {
-                const friendUsername = friendCard.dataset.username;
-                state.currentFriendUsername = friendUsername;
-                renderMutualStreakDetail(user, friendUsername);
-                friendListView.classList.add('hidden');
-                mutualStreakDetailView.classList.remove('hidden');
-            }
-        };
-
-        // Render trang chi tiết Chuỗi Chung
-        const renderMutualStreakDetail = (user, friendUsername) => {
-            const friendUser = state.users[friendUsername];
-            const friendship = user.friends[friendUsername];
-            
-            if (!friendUser || !friendship) {
-                showToast('Lỗi: Không tìm thấy bạn bè.', true);
-                // Quay lại danh sách
-                friendListView.classList.remove('hidden');
-                mutualStreakDetailView.classList.add('hidden');
-                return;
-            }
-
-            const now = Date.now();
-            const timeSinceLastRep = (now - friendship.lastRepTimestamp) / (1000 * 60 * 60); // hours
-            let isBroken = false;
-
-            // Kiểm tra reset chuỗi (quá 48h kể từ lần rep cuối cùng)
-            if (friendship.lastRep && timeSinceLastRep > 48) {
-                friendship.streakCount = 0;
-                friendship.lastRep = null;
-                friendship.turn = friendUsername; // Reset về lượt người bạn
-                isBroken = true;
-            }
-
-            // Hiển thị thông tin
-            mutualUserIcon.textContent = user.icon || '👤';
-            mutualFriendIcon.textContent = friendUser.icon || '👤';
-            mutualFriendName.textContent = friendUser.displayName || friendUsername;
-            
-            const milestone = getStreakMilestone(friendship.streakCount);
-            mutualStreakIcon.textContent = milestone.icon;
-            mutualStreakCount.textContent = friendship.streakCount;
-            mutualStreakMilestone.textContent = milestone.milestone;
-
-            // Xử lý trạng thái nút
-            if (friendship.turn === user.username) {
-                // Lượt của bạn
-                repMutualStreakBtn.disabled = false;
-                repMutualStreakBtn.textContent = '🔥 Reo Chuỗi Chung!';
-                repMutualStreakBtn.classList.add('btn-gradient');
-                repMutualStreakBtn.classList.remove('bg-gray-600', 'cursor-not-allowed');
-                mutualStreakMessage.textContent = 'Đến lượt bạn reo chuỗi!';
-                mutualStreakMessage.className = 'text-lg mt-4 h-6 text-green-400 animate-pulse';
-            } else {
-                // Lượt của bạn bè
-                repMutualStreakBtn.disabled = true;
-                repMutualStreakBtn.textContent = 'Đang chờ bạn...';
-                repMutualStreakBtn.classList.remove('btn-gradient');
-                repMutualStreakBtn.classList.add('bg-gray-600', 'cursor-not-allowed');
-                mutualStreakMessage.textContent = `Đang chờ @${friendUsername} reo chuỗi...`;
-                mutualStreakMessage.className = 'text-lg mt-4 h-6 text-yellow-400';
-            }
-            
-            if (isBroken) {
-                mutualStreakMessage.textContent = 'Chuỗi đã bị reset do quá 48h!';
-                mutualStreakMessage.className = 'text-lg mt-4 h-6 text-red-500';
+            if (changed) {
                 db.saveUsers(state.users);
             }
         };
         
-        // Xử lý nhấn nút Reo Chuỗi Chung
-        const handleRepMutualStreak = () => {
-            const user = state.currentUser;
-            const friendUsername = state.currentFriendUsername;
-            
-            if (!friendUsername) return;
-            
-            const friendship = user.friends[friendUsername];
-            const friendData = state.users[friendUsername];
-            const friendFriendship = friendData.friends[user.username];
-            
-            if (!friendship || !friendData || !friendFriendship) {
-                 showToast('Lỗi dữ liệu bạn bè.', true);
-                 return;
-            }
-            
-            // Chỉ reo khi đến lượt
-            if (friendship.turn !== user.username) {
-                showToast('Chưa đến lượt của bạn.', true);
-                return;
-            }
-
+        // Render danh sách nhiệm vụ (Player)
+        const renderTasksPlayer = (user) => {
+            taskListPlayer.innerHTML = '';
             const now = Date.now();
             
-            // Nếu người rep cuối là bạn bè (hoặc chưa ai rep), tăng chuỗi
-            if (friendship.lastRep !== user.username) {
-                friendship.streakCount++;
-                friendFriendship.streakCount++;
+            const userTasks = state.tasks.filter(task => 
+                !user.completedTasksHistory.includes(task.id) && now < task.deadline // Chỉ hiện task chưa hoàn thành VÀ còn hạn
+            );
+            
+            if (userTasks.length === 0) {
+                taskListPlayer.innerHTML = '<p class="text-gray-400 text-center">Bạn đã hoàn thành tất cả nhiệm vụ, hoặc chưa có nhiệm vụ mới.</p>';
+                return;
             }
             
-            // Cập nhật cả 2
-            friendship.lastRep = user.username;
-            friendship.lastRepTimestamp = now;
-            friendship.turn = friendUsername; // Chuyển lượt
+            // Sắp xếp: deadline gần nhất lên trên
+            userTasks.sort((a, b) => a.deadline - b.deadline);
             
-            friendFriendship.lastRep = user.username;
-            friendFriendship.lastRepTimestamp = now;
-            friendFriendship.turn = friendUsername; // Chuyển lượt
-            
-            db.saveUsers(state.users);
-            
-            // Render lại trang chi tiết
-            renderMutualStreakDetail(user, friendUsername);
-            
-            showToast(`Bạn đã reo chuỗi chung với @${friendUsername}!`);
-        };
-
-        // Quay lại danh sách bạn bè
-        backToFriendListBtn.onclick = () => {
-            state.currentFriendUsername = null;
-            friendListView.classList.remove('hidden');
-            mutualStreakDetailView.classList.add('hidden');
-            // Render lại danh sách bạn bè để cập nhật số chuỗi
-            renderFriends(state.currentUser);
-        };
-
-        // Render danh sách bạn bè và yêu cầu
-        const renderFriends = (user) => {
-            // Render Yêu Cầu
-            friendRequestsList.innerHTML = '';
-            if (user.friendRequests.length === 0) {
-                friendRequestsList.innerHTML = '<p class="text-gray-400">Không có yêu cầu nào.</p>';
-            } else {
-                user.friendRequests.forEach(username => {
-                    const friendUser = state.users[username];
-                    const displayName = friendUser?.displayName || username;
-                    const icon = friendUser?.icon || '👤';
-                    
-                    friendRequestsList.innerHTML += `
-                        <div class="flex items-center justify-between bg-gray-800 p-3 rounded-lg">
-                            <div class="flex items-center gap-3">
-                                <div class="user-icon user-icon-sm">${icon}</div>
-                                <span class="font-medium">${displayName} (@${username})</span>
-                            </div>
-                            <div class="flex gap-2">
-                                <button data-username="${username}" class="accept-friend-btn bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-1 px-2 rounded transition">Chấp Nhận</button>
-                                <button data-username="${username}" class="reject-friend-btn bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1 px-2 rounded transition">Từ Chối</button>
+            userTasks.forEach(task => {
+                const deadlineDate = new Date(task.deadline);
+                const isNearDeadline = (task.deadline - now) < (24 * 60 * 60 * 1000); // Còn dưới 1 ngày
+                
+                taskListPlayer.innerHTML += `
+                    <div class="bg-gray-700 p-5 rounded-lg shadow-md border ${isNearDeadline ? 'border-red-500' : 'border-gray-600'} flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <h3 class="text-xl font-semibold text-white mb-1">${task.name}</h3>
+                            <p class="text-sm ${isNearDeadline ? 'text-red-400 font-medium' : 'text-gray-400'}">
+                                ⏰ Deadline: ${deadlineDate.toLocaleString('vi-VN')}
+                            </p>
+                            <div class="flex gap-4 mt-2 text-sm">
+                                <span class="text-green-400">Thưởng: 💰 ${task.reward}</span>
+                                <span class="text-yellow-400">Phạt: 💸 ${task.penalty}</span>
                             </div>
                         </div>
-                    `;
-                });
-            }
-            
-            // Render Danh Sách Bạn Bè
-            friendListContainer.innerHTML = '';
-            const friends = Object.keys(user.friends);
-            if (friends.length === 0) {
-                friendListContainer.innerHTML = '<p class="text-gray-400">Bạn chưa có người bạn nào. Hãy thêm bạn ở trên!</p>';
-            } else {
-                friends.forEach(username => {
-                    const friendUser = state.users[username];
-                    const friendship = user.friends[username];
-                    
-                    if (!friendUser) return; // Bỏ qua nếu người dùng bị xóa
-                    
-                    const displayName = friendUser.displayName || username;
-                    const icon = friendUser.icon || '👤';
-                    
-                    // Lấy icon mốc chuỗi chung
-                    const milestone = getStreakMilestone(friendship.streakCount);
-                    
-                    // Kiểm tra trạng thái lượt
-                    let statusText = '';
-                    let statusClass = '';
-                    if (friendship.turn === user.username) {
-                        statusText = 'Đến lượt bạn!';
-                        statusClass = 'text-green-400 animate-pulse';
-                    } else {
-                        statusText = `Đang chờ @${username}`;
-                        statusClass = 'text-yellow-400';
-                    }
-
-                    friendListContainer.innerHTML += `
-                        <div data-username="${username}" class="friend-card flex items-center justify-between bg-gray-700 p-4 rounded-lg cursor-pointer hover:bg-gray-600 transition duration-200">
-                            <div class="flex items-center gap-3">
-                                <div class="user-icon user-icon-sm">${icon}</div>
-                                <div>
-                                    <span class="font-bold text-lg text-white">${displayName}</span>
-                                    <p class="text-sm ${statusClass}">${statusText}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2 text-2xl font-bold text-white">
-                                <span>${milestone.icon}</span>
-                                <span>${friendship.streakCount}</span>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
+                        <button data-id="${task.id}" class="complete-task-btn w-full md:w-auto text-white bg-green-600 hover:bg-green-700 font-medium py-3 px-5 rounded-lg transition duration-200 shadow-md transform hover:scale-105">
+                            ✅ Hoàn Thành
+                        </button>
+                    </div>
+                `;
+            });
         };
+        
+        // (CẬP NHẬT) Xử lý Hoàn Thành Nhiệm Vụ (Thêm logic Rank)
+        const handleTaskCompletion = (e) => {
+            const btn = e.target.closest('.complete-task-btn');
+            if (!btn) return;
+            
+            const id = btn.dataset.id;
+            const task = state.tasks.find(t => t.id === id);
+            const user = state.currentUser;
+            
+            if (!task) return;
+            
+            // Xác nhận
+            showModal(
+                'Xác nhận hoàn thành',
+                `Bạn có chắc đã hoàn thành nhiệm vụ: "${task.name}"?`,
+                'Đã Hoàn Thành',
+                true
+            ).then(confirmed => {
+                if (confirmed) {
+                    user.balance += task.reward;
+                    user.completedTasksHistory.push(id); // Thêm vào lịch sử (để ẩn đi)
+                    user.tasksCompleted += 1; // (MỚI) Tăng điểm Rank
+                    
+                    db.saveUsers(state.users);
+                    
+                    addActivityLog(
+                        `đã HOÀN THÀNH nhiệm vụ "${task.name}" (Tổng NV: ${user.tasksCompleted}), nhận 💰 ${task.reward}`, 
+                        'task_success', 
+                        user
+                    );
+                    
+                    showToast(`Hoàn thành nhiệm vụ! +💰 ${task.reward}`);
+                    
+                    // Render lại
+                    playerBalance.textContent = user.balance;
+                    renderTasksPlayer(user);
+                    renderShopPlayer(user); // Cập nhật shop
+                    renderRankProfile(user); // (MỚI) Cập nhật Rank
+                }
+            });
+        };
+
+        // --- Core Logic Functions ---
 
         // Render Thử Thách (Player)
         const renderChallengesPlayer = (user) => {
             challengeListPlayer.innerHTML = '';
             const userChallenges = state.challenges.filter(c => 
-                !user.answeredChallenges.includes(c.id) // Chưa trả lời
+                !user.answeredChallenges.includes(c.id)
             );
 
             if (userChallenges.length === 0) {
@@ -1312,25 +1236,21 @@
             
             if (!challenge) return;
 
-            // Vô hiệu hóa các nút
             const disableButtons = () => {
                 allButtons.forEach(b => {
                     b.disabled = true;
                     b.classList.add('opacity-50', 'cursor-not-allowed');
-                    // Đánh dấu đáp án đúng
                     if (parseInt(b.dataset.answer) === challenge.answer) {
                         b.classList.remove('bg-gray-600', 'hover:bg-blue-500');
                         b.classList.add('bg-green-600');
                     }
                 });
-                // Hiện nút xem giải thích
                 const explanationBtn = card.querySelector('.show-explanation-btn');
                 if (explanationBtn) {
                     explanationBtn.classList.remove('hidden');
                 }
             };
             
-            // Hàm xử lý khi trả lời đúng
             const handleCorrectAnswer = () => {
                 user.balance += challenge.reward;
                 user.answeredChallenges.push(id);
@@ -1339,24 +1259,18 @@
                 showToast(`Chính xác! Bạn nhận được 💰 ${challenge.reward}!`);
                 addActivityLog(`đã trả lời đúng thử thách "${challenge.question}"`, 'challenge', user);
 
-                // Cập nhật số dư
                 playerBalance.textContent = user.balance;
-                
-                // Cập nhật Cửa Hàng (để kích hoạt nút mua nếu đủ tiền)
                 renderShopPlayer(user);
                 
-                // Đánh dấu nút đúng
                 btn.classList.remove('bg-gray-600', 'hover:bg-blue-500');
                 btn.classList.add('bg-green-600');
                 
                 disableButtons();
             };
             
-            // Hàm xử lý khi trả lời sai
             const handleWrongAnswer = async () => {
                 btn.classList.remove('bg-gray-600', 'hover:bg-blue-500');
                 btn.classList.add('bg-red-600', 'shake-error');
-                // Xóa animation để có thể lắc lại
                 setTimeout(() => btn.classList.remove('shake-error'), 500);
 
                 if (user.balance >= 5) {
@@ -1369,24 +1283,19 @@
                     );
                     
                     if (retry) {
-                        // Trừ tiền và cho thử lại
                         user.balance -= 5;
                         db.saveUsers(state.users);
                         playerBalance.textContent = user.balance;
                         showToast('Bạn đã bị trừ 💰 5. Hãy chọn lại!', true);
                         
-                        // Kích hoạt lại nút sai
                         btn.classList.add('bg-gray-600', 'hover:bg-blue-500');
                         btn.classList.remove('bg-red-600');
-                        // (Không return, để người dùng bấm lại)
                     } else {
-                        // Người dùng chọn "Không", đánh dấu đã trả lời và hiện đáp án
                         user.answeredChallenges.push(id);
                         db.saveUsers(state.users);
                         disableButtons();
                     }
                 } else {
-                    // Không đủ tiền, tự động thất bại
                     showToast('Bạn đã trả lời sai và không đủ 💰 5 để thử lại.', true);
                     user.answeredChallenges.push(id);
                     db.saveUsers(state.users);
@@ -1417,9 +1326,7 @@
                 body += `<img src="${challenge.explanationImg}" alt="Hình ảnh giải thích" class="mt-4 rounded-lg w-full object-contain" onerror="this.style.display='none'">`;
             }
             
-            // Dùng hàm modal, khi nhấn OK thì xóa câu hỏi
             showModal('Giải Thích Đáp Án', body).then(() => {
-                // Sau khi user nhấn "OK"
                 const card = btn.closest('.bg-gray-700');
                 if (card) {
                     card.style.transition = 'opacity 0.5s, transform 0.5s';
@@ -1427,7 +1334,6 @@
                     card.style.transform = 'scale(0.9)';
                     setTimeout(() => {
                         card.remove();
-                        // Kiểm tra nếu hết câu hỏi
                         if (challengeListPlayer.children.length === 0) {
                             renderChallengesPlayer(state.currentUser);
                         }
@@ -1504,11 +1410,10 @@
             showToast(`Bạn đã mua ${item.name}!`, false);
             addActivityLog(`đã đổi vật phẩm "${item.name}"`, 'purchase', user);
             
-            // Render lại số dư và cửa hàng
             playerBalance.textContent = user.balance;
             renderShopPlayer(user);
+            renderTasksPlayer(user); // Cập nhật cả nhiệm vụ
             
-            // Hiệu ứng mũi tên chỉ
             viewGiftsPointer.classList.remove('hidden');
             setTimeout(() => {
                 viewGiftsPointer.classList.add('hidden');
@@ -1545,7 +1450,6 @@
             
             let canUpdate = true;
             
-            // Kiểm tra Tên
             if (newName !== user.displayName) {
                 if (user.cooldowns.name && now < user.cooldowns.name) {
                     showToast(`Bạn chỉ có thể đổi tên sau ${new Date(user.cooldowns.name).toLocaleDateString('vi-VN')}.`, true);
@@ -1556,7 +1460,6 @@
                 }
             }
             
-            // Kiểm tra Icon
             if (newIcon !== user.icon) {
                 if (user.cooldowns.icon && now < user.cooldowns.icon) {
                     showToast(`Bạn chỉ có thể đổi icon sau ${new Date(user.cooldowns.icon).toLocaleDateString('vi-VN')}.`, true);
@@ -1567,7 +1470,6 @@
                 }
             }
             
-            // Kiểm tra Mật khẩu
             if (newPassword) {
                 if (user.cooldowns.password && now < user.cooldowns.password) {
                     showToast(`Bạn chỉ có thể đổi mật khẩu sau ${new Date(user.cooldowns.password).toLocaleDateString('vi-VN')}.`, true);
@@ -1581,23 +1483,24 @@
             if (canUpdate) {
                 db.saveUsers(state.users);
                 showToast('Cập nhật thông tin thành công!');
-                // Cập nhật ngay lập tức
                 initPlayerView(user); 
             }
         };
 
         // --- Admin Functions ---
 
-        // Render Danh sách User (Admin)
+        // (CẬP NHẬT) Render Danh sách User (Admin) (Thêm Rank)
         const renderUserList = () => {
             userListTbody.innerHTML = '';
             Object.values(state.users).forEach(user => {
+                const rank = getRank(user.tasksCompleted);
                 userListTbody.innerHTML += `
                     <tr class="bg-gray-800 border-b border-gray-700 hover:bg-gray-700">
                         <td class="py-4 px-6"><div class="user-icon user-icon-sm">${user.icon || '👤'}</div></td>
                         <td class="py-4 px-6 font-medium">${user.displayName || '(Chưa đặt)'}</td>
                         <td class="py-4 px-6">${user.username}</td>
                         <td class="py-4 px-6">💰 ${user.balance}</td>
+                        <td class="py-4 px-6"><span class="font-bold">${rank.icon} ${user.tasksCompleted}</span></td>
                         <td class="py-4 px-6 space-x-2">
                             <button type="button" data-username="${user.username}" class="edit-user-btn text-yellow-400 hover:text-yellow-300 font-medium">Sửa</button>
                             <button type="button" data-username="${user.username}" class="delete-user-btn text-red-500 hover:text-red-400 font-medium">Xóa</button>
@@ -1607,18 +1510,19 @@
             });
         };
         
-        // Xóa form User (Admin)
+        // (CẬP NHẬT) Xóa form User (Admin) (Thêm Rank)
         const clearUserForm = () => {
             userUsernameInput.value = '';
             userDisplaynameInput.value = '';
             userIconInput.value = '';
             userPasswordInput.value = '';
             userBalanceInput.value = '0';
-            userUsernameInput.readOnly = false; // Kích hoạt lại
-            userForm.dataset.mode = 'add'; // Đặt chế độ 'thêm mới'
+            userTasksCompletedInput.value = '0'; // Mới
+            userUsernameInput.readOnly = false;
+            userForm.dataset.mode = 'add';
         };
         
-        // Xử lý Form User (Thêm/Sửa)
+        // (CẬP NHẬT) Xử lý Form User (Thêm/Sửa) (Thêm Rank)
         const handleUserFormSubmit = (e) => {
             e.preventDefault();
             
@@ -1627,6 +1531,7 @@
             const icon = userIconInput.value.trim();
             const password = userPasswordInput.value.trim();
             const balance = parseInt(userBalanceInput.value) || 0;
+            const tasksCompleted = parseInt(userTasksCompletedInput.value) || 0; // Mới
             
             if (!username || !password) {
                 showToast('Tài khoản và mật khẩu là bắt buộc!', true);
@@ -1637,21 +1542,21 @@
             const mode = userForm.dataset.mode || 'add';
 
             if (mode === 'add') {
-                // Thêm Mới
                 if (state.users[username]) {
                     showToast('Tài khoản này đã tồn tại!', true);
                     return;
                 }
+                // (CẬP NHẬT) Đối tượng user mới (Thêm Rank)
                 state.users[username] = {
                     username,
                     password,
                     displayName: displayName || username,
                     icon: icon || '👤',
                     balance,
+                    tasksCompleted: tasksCompleted, // Mới
+                    completedTasksHistory: [], // Mới
                     inventory: [],
                     answeredChallenges: [],
-                    friendRequests: [],
-                    friends: {},
                     notifications: [],
                     hasNewNotification: false,
                     cooldowns: { name: null, icon: null, password: null },
@@ -1659,7 +1564,6 @@
                 };
                 showToast('Đã thêm người dùng mới!', false);
             } else {
-                // Sửa
                 const user = state.users[username];
                 if (!user) {
                      showToast('Lỗi: Không tìm thấy người dùng để sửa.', true);
@@ -1669,6 +1573,7 @@
                 user.icon = icon;
                 user.password = password;
                 user.balance = balance;
+                user.tasksCompleted = tasksCompleted; // Mới
                 showToast(`Đã cập nhật @${username}!`, false);
             }
 
@@ -1677,9 +1582,8 @@
             clearUserForm();
         };
 
-        // Xử lý nút Sửa/Xóa User
+        // (CẬP NHẬT) Xử lý nút Sửa/Xóa User (Thêm Rank)
         const handleUserActions = (e) => {
-            // Sửa
             const editBtn = e.target.closest('.edit-user-btn');
             if (editBtn) {
                 const username = editBtn.dataset.username;
@@ -1691,15 +1595,15 @@
                 userIconInput.value = user.icon || '';
                 userPasswordInput.value = user.password;
                 userBalanceInput.value = user.balance;
+                userTasksCompletedInput.value = user.tasksCompleted || 0; // Mới
                 
-                userUsernameInput.readOnly = true; // Khóa username khi sửa
-                userForm.dataset.mode = 'edit'; // Đặt chế độ 'sửa'
+                userUsernameInput.readOnly = true;
+                userForm.dataset.mode = 'edit';
                 
-                window.scrollTo(0, 0); // Cuộn lên đầu trang
+                window.scrollTo(0, 0);
                 return;
             }
             
-            // Xóa
             const deleteBtn = e.target.closest('.delete-user-btn');
             if (deleteBtn) {
                 const username = deleteBtn.dataset.username;
@@ -1708,23 +1612,116 @@
                     return;
                 }
                 
-                showModal(
-                    'Xác nhận xóa',
-                    `Bạn có chắc muốn xóa người dùng @${username}? Hành động này không thể hoàn tác.`,
-                    'Xóa',
-                    true
-                ).then(confirmed => {
+                showModal('Xác nhận xóa', `Bạn có chắc muốn xóa @${username}?`, 'Xóa', true)
+                .then(confirmed => {
                     if (confirmed) {
                         delete state.users[username];
-                        // Cũng phải xóa khỏi danh sách bạn bè của người khác
-                        Object.values(state.users).forEach(u => {
-                            delete u.friends[username];
-                            u.friendRequests = u.friendRequests.filter(req => req !== username);
-                        });
-                        
                         db.saveUsers(state.users);
                         renderUserList();
                         showToast(`Đã xóa @${username}.`, false);
+                    }
+                });
+            }
+        };
+
+        // Render Danh sách Nhiệm Vụ (Admin)
+        const renderTaskListAdmin = () => {
+            taskListTbody.innerHTML = '';
+            state.tasks.sort((a, b) => a.deadline - b.deadline).forEach(task => {
+                taskListTbody.innerHTML += `
+                    <tr class="bg-gray-800 border-b border-gray-700 hover:bg-gray-700">
+                        <td class="py-4 px-6">${task.name}</td>
+                        <td class="py-4 px-6">💰 ${task.reward}</td>
+                        <td class="py-4 px-6">💸 ${task.penalty}</td>
+                        <td class="py-4 px-6">${new Date(task.deadline).toLocaleString('vi-VN')}</td>
+                        <td class="py-4 px-6 space-x-2">
+                            <button type="button" data-id="${task.id}" class="edit-task-btn text-yellow-400 hover:text-yellow-300 font-medium">Sửa</button>
+                            <button type="button" data-id="${task.id}" class="delete-task-btn text-red-500 hover:text-red-400 font-medium">Xóa</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        };
+        
+        // Xóa form Nhiệm Vụ
+        const clearTaskForm = () => {
+            state.editingTaskId = null;
+            taskIdInput.value = '';
+            taskNameInput.value = '';
+            taskRewardInput.value = '50';
+            taskPenaltyInput.value = '10';
+            taskDeadlineInput.value = '';
+        };
+
+        // Xử lý Form Nhiệm Vụ (Thêm/Sửa)
+        const handleTaskFormSubmit = (e) => {
+            e.preventDefault();
+            const id = state.editingTaskId || `task_${Date.now()}`;
+            const deadline = new Date(taskDeadlineInput.value).getTime();
+            
+            if (isNaN(deadline)) {
+                showToast('Deadline không hợp lệ!', true);
+                return;
+            }
+            
+            const task = {
+                id,
+                name: taskNameInput.value,
+                reward: parseInt(taskRewardInput.value),
+                penalty: parseInt(taskPenaltyInput.value),
+                deadline: deadline
+            };
+
+            if (state.editingTaskId) {
+                const index = state.tasks.findIndex(t => t.id === id);
+                state.tasks[index] = task;
+                showToast('Đã cập nhật nhiệm vụ!', false);
+            } else {
+                state.tasks.push(task);
+                showToast('Đã thêm nhiệm vụ mới!', false);
+            }
+
+            db.saveTasks(state.tasks);
+            renderTaskListAdmin();
+            clearTaskForm();
+        };
+
+        // Xử lý Sửa/Xóa Nhiệm Vụ
+        const handleTaskActions = (e) => {
+            // Sửa
+            const editBtn = e.target.closest('.edit-task-btn');
+            if (editBtn) {
+                const id = editBtn.dataset.id;
+                const task = state.tasks.find(t => t.id === id);
+                if (!task) return;
+
+                state.editingTaskId = id;
+                taskNameInput.value = task.name;
+                taskRewardInput.value = task.reward;
+                taskPenaltyInput.value = task.penalty;
+                // Chuyển đổi timestamp sang định dạng YYYY-MM-DDTHH:mm
+                const d = new Date(task.deadline);
+                taskDeadlineInput.value = d.getFullYear() + '-' + 
+                                ('0' + (d.getMonth() + 1)).slice(-2) + '-' + 
+                                ('0' + d.getDate()).slice(-2) + 'T' + 
+                                ('0' + d.getHours()).slice(-2) + ':' + 
+                                ('0' + d.getMinutes()).slice(-2);
+                
+                window.scrollTo(0, 0);
+                return;
+            }
+
+            // Xóa
+            const deleteBtn = e.target.closest('.delete-task-btn');
+            if (deleteBtn) {
+                const id = deleteBtn.dataset.id;
+                showModal('Xác nhận xóa', 'Xóa nhiệm vụ này? (User đã hoàn thành sẽ không bị ảnh hưởng)', 'Xóa', true)
+                .then(confirmed => {
+                    if (confirmed) {
+                        state.tasks = state.tasks.filter(t => t.id !== id);
+                        db.saveTasks(state.tasks);
+                        renderTaskListAdmin();
+                        showToast('Đã xóa nhiệm vụ.', false);
                     }
                 });
             }
@@ -1782,12 +1779,10 @@
             };
             
             if (state.editingChallengeId) {
-                // Sửa
                 const index = state.challenges.findIndex(c => c.id === id);
                 state.challenges[index] = challenge;
                 showToast('Đã cập nhật thử thách!', false);
             } else {
-                // Thêm
                 state.challenges.push(challenge);
                 showToast('Đã thêm thử thách mới!', false);
             }
@@ -1799,7 +1794,6 @@
 
         // Xử lý Sửa/Xóa Thử Thách
         const handleChallengeActions = (e) => {
-            // Sửa
             const editBtn = e.target.closest('.edit-challenge-btn');
             if (editBtn) {
                 const id = editBtn.dataset.id;
@@ -1821,7 +1815,6 @@
                 return;
             }
             
-            // Xóa
             const deleteBtn = e.target.closest('.delete-challenge-btn');
             if (deleteBtn) {
                 const id = deleteBtn.dataset.id;
@@ -1878,12 +1871,10 @@
             };
 
             if (state.editingShopItemId) {
-                // Sửa
                 const index = state.shopItems.findIndex(i => i.id === id);
                 state.shopItems[index] = item;
                 showToast('Đã cập nhật vật phẩm!', false);
             } else {
-                // Thêm
                 state.shopItems.push(item);
                 showToast('Đã thêm vật phẩm mới!', false);
             }
@@ -1895,7 +1886,6 @@
 
         // Xử lý Sửa/Xóa Cửa Hàng
         const handleShopActions = (e) => {
-            // Sửa
             const editBtn = e.target.closest('.edit-shop-btn');
             if (editBtn) {
                 const id = editBtn.dataset.id;
@@ -1911,11 +1901,10 @@
                 return;
             }
 
-            // Xóa
             const deleteBtn = e.target.closest('.delete-shop-btn');
             if (deleteBtn) {
                 const id = deleteBtn.dataset.id;
-                showModal('Xác nhận xóa', 'Bạn có chắc muốn xóa vật phẩm này? (Kho đồ của user sẽ không bị ảnh hưởng)', 'Xóa', true)
+                showModal('Xác nhận xóa', 'Xóa vật phẩm này?', 'Xóa', true)
                 .then(confirmed => {
                     if (confirmed) {
                         state.shopItems = state.shopItems.filter(i => i.id !== id);
@@ -1933,17 +1922,8 @@
             const message = notificationMessageInput.value.trim();
             if (!message) return;
             
-            const notification = {
-                id: `notif_${Date.now()}`,
-                timestamp: Date.now(),
-                message: message,
-                read: false
-            };
-            
-            // Gửi cho tất cả user
             Object.values(state.users).forEach(user => {
-                user.notifications.push(notification);
-                user.hasNewNotification = true;
+                addNotification(user, message); // (CẬP NHẬT) Sử dụng hàm helper
             });
             
             db.saveUsers(state.users);
@@ -1961,7 +1941,10 @@
             
             state.activityLog.forEach(log => {
                 const date = new Date(log.timestamp).toLocaleString('vi-VN');
-                const colorClass = log.type === 'purchase' ? 'text-green-400' : 'text-blue-400';
+                let colorClass = 'text-blue-400';
+                if (log.type === 'purchase') colorClass = 'text-green-400';
+                if (log.type === 'task_success') colorClass = 'text-cyan-400';
+                if (log.type === 'task_fail') colorClass = 'text-red-400';
                 
                 activityLogList.innerHTML += `
                     <div class="bg-gray-700 p-4 rounded-lg animate-slide-in">
@@ -1977,7 +1960,6 @@
 
         // Xử lý các nút Xóa Lịch Sử
         const handleLogClearing = (e) => {
-            // Xóa Toàn Bộ Lịch Sử
             if (e.target === clearActivityLogBtn) {
                 showModal('Xác nhận xóa', 'Bạn có chắc muốn xóa TOÀN BỘ lịch sử hoạt động?', 'Xóa', true)
                 .then(confirmed => {
@@ -1990,17 +1972,14 @@
                 });
             }
             
-            // Xóa Lịch Sử Đổi Quà (VÀ XÓA KHO ĐỒ USER)
             if (e.target === clearPurchaseLogBtn) {
-                showModal('Xác nhận xóa', 'Bạn có chắc muốn xóa lịch sử ĐỔI QUÀ? (Việc này sẽ XÓA SẠCH KHO ĐỒ của tất cả user)', 'Xóa', true)
+                showModal('Xác nhận xóa', 'Xóa lịch sử ĐỔI QUÀ? (Sẽ XÓA SẠCH KHO ĐỒ của user)', 'Xóa', true)
                 .then(confirmed => {
                     if (confirmed) {
-                        // Xóa log
                         state.activityLog = state.activityLog.filter(log => log.type !== 'purchase');
                         db.saveActivityLog(state.activityLog);
                         renderActivityLog();
                         
-                        // Xóa kho đồ
                         Object.values(state.users).forEach(user => {
                             user.inventory = [];
                         });
@@ -2011,9 +1990,8 @@
                 });
             }
             
-            // Xóa Hết Thông Báo (User)
             if (e.target === clearUserNotificationsBtn) {
-                showModal('Xác nhận xóa', 'Bạn có chắc muốn xóa tất cả thông báo (chuông 🔔) của tất cả người dùng?', 'Xóa', true)
+                showModal('Xác nhận xóa', 'Xóa tất cả thông báo (chuông 🔔) của tất cả người dùng?', 'Xóa', true)
                 .then(confirmed => {
                     if (confirmed) {
                         Object.values(state.users).forEach(user => {
@@ -2031,20 +2009,9 @@
 
         // Chuyển tab Player
         const switchPlayerTab = (tabName) => {
-            // Ẩn tất cả nội dung
             Object.values(playerTabs).forEach(tab => tab.classList.add('hidden'));
-            // Ẩn Giao diện chi tiết
-            mutualStreakDetailView.classList.add('hidden');
-            friendListView.classList.remove('hidden'); // Reset về danh sách
-            
-            // Hiện nội dung tab được chọn
-            if (playerTabs[tabName]) {
-                playerTabs[tabName].classList.remove('hidden');
-            } else if (tabName === 'friends') {
-                playerTabs.friends.classList.remove('hidden');
-            }
+            playerTabs[tabName].classList.remove('hidden');
 
-            // Đổi style nút
             playerNav.querySelectorAll('.player-tab').forEach(btn => {
                 if (btn.dataset.tab === tabName) {
                     btn.classList.add('bg-blue-600', 'text-white');
@@ -2055,10 +2022,10 @@
                 }
             });
             
-            // Render lại khi chuyển tab (để cập nhật)
+            if (tabName === 'tasks') renderTasksPlayer(state.currentUser);
             if (tabName === 'challenges') renderChallengesPlayer(state.currentUser);
             if (tabName === 'shop') renderShopPlayer(state.currentUser);
-            if (tabName === 'friends') renderFriends(state.currentUser);
+            if (tabName === 'profile') renderRankProfile(state.currentUser); // (MỚI)
         };
         
         // Chuyển tab Admin
@@ -2076,14 +2043,13 @@
                 }
             });
             
-            // Render khi chuyển
             if (tabName === 'userMgmt') renderUserList();
+            if (tabName === 'taskMgmt') renderTaskListAdmin();
             if (tabName === 'challengeMgmt') renderChallengeListAdmin();
             if (tabName === 'shopMgmt') renderShopListAdmin();
             if (tabName === 'activityLog') renderActivityLog();
         };
         
-        // Gán sự kiện click cho nav
         playerNav.addEventListener('click', (e) => {
             const tabBtn = e.target.closest('.player-tab');
             if (tabBtn) switchPlayerTab(tabBtn.dataset.tab);
@@ -2097,28 +2063,30 @@
 
         // Khởi tạo trang Player
         const initPlayerView = (user) => {
+            // (CẬP NHẬT) Kiểm tra deadline (để reset rank nếu cần)
+            checkTaskDeadlines(user);
+        
             state.currentUser = user;
             
-            // Cập nhật Header
             playerUsername.textContent = user.username;
             playerDisplayname.textContent = user.displayName || user.username;
             playerHeaderIcon.textContent = user.icon || '👤';
             playerBalance.textContent = user.balance;
             
-            // Cập nhật chuông thông báo
             if (user.hasNewNotification) {
                 notificationBell.classList.add('has-new');
             } else {
                 notificationBell.classList.remove('has-new');
             }
             
-            // Cập nhật Profile Tab
             profileDisplaynameInput.value = user.displayName || user.username;
             profileIconInput.value = user.icon || '👤';
             profileIconDisplay.textContent = user.icon || '👤';
-            profilePasswordInput.value = ''; // Luôn xóa trống
+            profilePasswordInput.value = '';
             
-            // Render Cooldowns
+            // (MỚI) Render Rank khi vào trang cá nhân
+            renderRankProfile(user);
+            
             const now = Date.now();
             const renderCooldown = (elem, cdTimestamp) => {
                 if (cdTimestamp && now < cdTimestamp) {
@@ -2133,8 +2101,7 @@
             renderCooldown(cooldownPassword, user.cooldowns.password);
 
             // Mở tab đầu tiên
-            switchPlayerTab('friends');
-            
+            switchPlayerTab('tasks');
             showView('player');
         };
 
@@ -2150,7 +2117,6 @@
             const username = usernameInput.value;
             const password = passwordInput.value;
 
-            // Admin Login
             if (username === 'admin' && password === '123') {
                 if (rememberMeInput.checked) {
                     db.saveRememberedUser({ username, password });
@@ -2161,7 +2127,6 @@
                 return;
             }
 
-            // Player Login
             const user = state.users[username];
             if (user && user.password === password) {
                 if (rememberMeInput.checked) {
@@ -2179,7 +2144,6 @@
         const handleLogout = () => {
             state.currentUser = null;
             showView('login');
-            // Điền lại nếu có "Nhớ Mật Khẩu"
             const rememberedUser = db.getRememberedUser();
             if (rememberedUser) {
                 usernameInput.value = rememberedUser.username;
@@ -2196,74 +2160,58 @@
         const init = () => {
             // Load tất cả dữ liệu
             state.users = db.getUsers();
+            state.tasks = db.getTasks();
             state.challenges = db.getChallenges();
             state.shopItems = db.getShopItems();
             state.activityLog = db.getActivityLog();
             
-            // (FIX-ADDFRIEND) Gán sự kiện cho form THÊM BẠN (submit)
-            addFriendForm.addEventListener('submit', handleAddFriendSubmit);
-            
-            // (FIX-ADDFRIEND) Gán sự kiện cho DANH SÁCH (click)
-            const friendTabContainer = document.getElementById('friends-tab');
-            friendTabContainer.addEventListener('click', handleFriendListClick);
-            
-            // Gán sự kiện cho nút Rep Chuỗi Chung
-            repMutualStreakBtn.addEventListener('click', handleRepMutualStreak);
-
-            // Gán sự kiện chung cho Thử Thách (event delegation)
+            // Gán sự kiện Player
+            tasksTab.addEventListener('click', handleTaskCompletion);
             challengeListPlayer.addEventListener('click', (e) => {
                 handleChallengeAnswer(e);
                 handleShowExplanation(e);
             });
-            
-            // Gán sự kiện cho Cửa Hàng
             shopListPlayer.addEventListener('click', handleBuyItem);
+            profileForm.addEventListener('submit', handleProfileUpdate);
 
             // Gán sự kiện Đăng nhập/Đăng xuất
             loginForm.addEventListener('submit', handleLogin);
             logoutBtnPlayer.addEventListener('click', handleLogout);
             logoutBtnAdmin.addEventListener('click', handleLogout);
             
-            // Gán sự kiện cho Profile
-            profileForm.addEventListener('submit', handleProfileUpdate);
-            
-            // Gán sự kiện Admin: User
+            // Gán sự kiện Admin
             userForm.addEventListener('submit', handleUserFormSubmit);
             clearUserFormBtn.addEventListener('click', clearUserForm);
             userListTbody.addEventListener('click', handleUserActions);
             
-            // Gán sự kiện Admin: Challenge
+            taskForm.addEventListener('submit', handleTaskFormSubmit);
+            clearTaskFormBtn.addEventListener('click', clearTaskForm);
+            taskListTbody.addEventListener('click', handleTaskActions);
+            
             challengeForm.addEventListener('submit', handleChallengeFormSubmit);
             clearChallengeFormBtn.addEventListener('click', clearChallengeForm);
             challengeListTbody.addEventListener('click', handleChallengeActions);
 
-            // Gán sự kiện Admin: Shop
             shopForm.addEventListener('submit', handleShopFormSubmit);
             clearShopFormBtn.addEventListener('click', clearShopForm);
             shopListTbody.addEventListener('click', handleShopActions);
             
-            // Gán sự kiện Admin: Notify
             notificationForm.addEventListener('submit', handleNotificationSubmit);
             
-            // Gán sự kiện Admin: Activity Log
             clearActivityLogBtn.addEventListener('click', handleLogClearing);
             clearPurchaseLogBtn.addEventListener('click', handleLogClearing);
             clearUserNotificationsBtn.addEventListener('click', handleLogClearing);
             
-            // Render bộ chọn Emoji
             renderEmojiPicker(profileEmojiList, profileIconInput);
             renderEmojiPicker(adminEmojiList, userIconInput);
             
-            // Hiển thị pop-up nhắc nhở sau 1 giây
             setTimeout(() => {
-                // Chỉ hiện ở trang login
                 if (views.login.classList.contains('hidden') === false) {
                     showToast('Nhớ hãy lưu mật khẩu của bạn nhé!', false);
                 }
             }, 1000);
 
-            // Kiểm tra "Nhớ Mật Khẩu"
-            handleLogout(); // Gọi để tự động điền
+            handleLogout();
         };
 
         // Chạy ứng dụng
